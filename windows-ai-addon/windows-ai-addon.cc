@@ -30,13 +30,14 @@ public:
         return exports;
     }
 
-    // Factory method - the only way to create instances
     static Napi::Value MyCreateAsync(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
         try {
             auto languageModel = LanguageModel::CreateAsync().get();
-            
-            // Use shared_ptr to manage the LanguageModel lifetime
+            if (!languageModel) {
+                Napi::Error::New(env, "Failed to create LanguageModel instance.").ThrowAsJavaScriptException();
+                return env.Null();
+            }
             auto persistentModel = std::make_shared<LanguageModel>(std::move(languageModel));
             auto external = Napi::External<std::shared_ptr<LanguageModel>>::New(env, 
                 new std::shared_ptr<LanguageModel>(persistentModel),
@@ -67,7 +68,15 @@ public:
 
     static void MyEnsureReadyAsync(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
-        LanguageModel::EnsureReadyAsync().get();
+        try {
+            LanguageModel::EnsureReadyAsync().get();
+        } catch (const winrt::hresult_error& ex) {
+            Napi::Error::New(env, winrt::to_string(ex.message())).ThrowAsJavaScriptException();
+        } catch (const std::exception& ex) {
+            Napi::Error::New(env, ex.what()).ThrowAsJavaScriptException();
+        } catch (...) {
+            Napi::Error::New(env, "Unknown error occurred in EnsureReadyAsync").ThrowAsJavaScriptException();
+        }
     }
 
     MyLanguageModel(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyLanguageModel>(info) {
@@ -87,6 +96,10 @@ private:
         Napi::Env env = info.Env();
         try {
             std::string prompt = info[0].As<Napi::String>();
+            if (prompt.empty()) {
+                Napi::Error::New(env, "The prompt cannot be empty. Please provide a valid prompt.").ThrowAsJavaScriptException();
+                return env.Null();
+            }
             auto responseResult = m_languagemodel->GenerateResponseAsync(winrt::to_hstring(prompt)).get();
             auto result = winrt::to_string(responseResult.Text());
             return Napi::String::New(env, result);
@@ -104,17 +117,14 @@ private:
 };
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    // Create the AIFeatureReadyState enum object
     Napi::Object aiFeatureReadyState = Napi::Object::New(env);
     aiFeatureReadyState.Set("Ready", Napi::Number::New(env, 0));
     aiFeatureReadyState.Set("NotReady", Napi::Number::New(env, 1));
     aiFeatureReadyState.Set("NotSupportedOnCurrentSystem", Napi::Number::New(env, 2));
     aiFeatureReadyState.Set("DisabledByUser", Napi::Number::New(env, 3));
     
-    // Add the enum to exports
     exports.Set("AIFeatureReadyState", aiFeatureReadyState);
     
-    // Initialize the LanguageModel class
     return MyLanguageModel::Init(env, exports);
 }
 
