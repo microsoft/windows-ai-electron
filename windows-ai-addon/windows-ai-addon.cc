@@ -306,6 +306,18 @@ private:
     
     Napi::Value MyGenerateResponseAsync(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
+        
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "First parameter must be a string").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string prompt = info[0].As<Napi::String>();
+        if (prompt.empty()) {
+            Napi::TypeError::New(env, "First parameter must be a non-empty string").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+
         auto deferred = Napi::Promise::Deferred::New(env);
         auto tsfn = Napi::ThreadSafeFunction::New(
             env,
@@ -314,67 +326,142 @@ private:
             0,
             1 
         );
-
-        // Create a shared pointer that automatically releases tsfn when done
         auto tsfn_guard = std::shared_ptr<void>(nullptr, [tsfn](void*) mutable { tsfn.Release(); });
-        
-        try {
-            // First parameter: prompt (required)
-            if (info.Length() < 1 || !info[0].IsString()) {
-                deferred.Reject(Napi::Error::New(env, "First parameter must be a string").Value());
-                return deferred.Promise();
-            }
-            
-            std::string prompt = info[0].As<Napi::String>();
-            if (prompt.empty()) {
-                deferred.Reject(Napi::Error::New(env, "First parameter must be a non-empty string").Value());
-                return deferred.Promise();
-            }
+        auto progressTsfn = std::make_shared<Napi::ThreadSafeFunction*>(nullptr);
 
+        try {
             auto asyncOp = [&]() {
                 if (info.Length() >= 2 && info[1].IsObject()) {
                     try {
                         auto optionsObj = info[1].As<Napi::Object>();
                         auto optionsWrapper = Napi::ObjectWrap<MyLanguageModelOptions>::Unwrap(optionsObj);
                         if (!optionsWrapper) {
-                            throw std::runtime_error("Failed to unwrap LanguageModelOptions");
+                            Napi::TypeError::New(env, "Failed to unwrap LanguageModelOptions").ThrowAsJavaScriptException();
                         }
                         auto options = optionsWrapper->GetOptions();
                         return m_languagemodel->GenerateResponseAsync(winrt::to_hstring(prompt), options);
                     } catch (...) {
-                        throw std::runtime_error("Second parameter must be a LanguageModelOptions instance");
+                        Napi::TypeError::New(env, "Second parameter must be a LanguageModelOptions instance").ThrowAsJavaScriptException();
                     }
                 } else {
                     return m_languagemodel->GenerateResponseAsync(winrt::to_hstring(prompt));
                 }
             }();
+
+            asyncOp.Progress([progressTsfn](auto const& sender, auto const& progressText) {
+                if (progressTsfn && *progressTsfn) {
+                    auto progressStr = winrt::to_string(progressText);
+                    
+                    (*progressTsfn)->NonBlockingCall([progressStr](Napi::Env env, Napi::Function jsCallback) {
+                        try {
+                            jsCallback.Call({ env.Null(), Napi::String::New(env, progressStr) });
+                        } catch (const std::exception& e) {
+                            printf("Progress callback error: %s\n", e.what());
+                        }
+                    });
+                }
+            });
             
-            auto completionHandler = [deferred, tsfn, tsfn_guard](auto const& sender, auto const& status) mutable {
+            asyncOp.Completed([deferred, tsfn, tsfn_guard](auto const& sender, auto const& status) mutable {
                 auto callback = [deferred, sender, status](Napi::Env env, Napi::Function) {
-                    if (status != winrt::Windows::Foundation::AsyncStatus::Completed) {
-                        deferred.Reject(Napi::Error::New(env, "GenerateResponseAsync was cancelled or failed.").Value());
-                        return;
+                    try {
+                        if (status == winrt::Windows::Foundation::AsyncStatus::Completed) {
+                            auto result = winrt::to_string(sender.GetResults().Text());
+                            deferred.Resolve(Napi::String::New(env, result));
+                        } else {
+                            deferred.Reject(Napi::Error::New(env, "GenerateResponseAsync was cancelled or failed.").Value());
+                        }
+                    } catch (const winrt::hresult_error& ex) {
+                        deferred.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
+                    } catch (const std::exception& ex) {
+                        deferred.Reject(Napi::Error::New(env, ex.what()).Value());
+                    } catch (...) {
+                        deferred.Reject(Napi::Error::New(env, "Unknown error occurred in GenerateResponseAsync completion").Value());
                     }
-                    auto responseResult = sender.GetResults();
-                    auto result = winrt::to_string(responseResult.Text());
-                    deferred.Resolve(Napi::String::New(env, result));
                 };
                 
                 tsfn.BlockingCall(callback);
-            };
+            });
             
-            asyncOp.Completed(completionHandler);
-            return deferred.Promise();
+            auto promiseObj = Napi::Object::New(env);
+            promiseObj.Set("_promise", deferred.Promise());
+            promiseObj.Set("_progressTsfn", Napi::External<std::shared_ptr<Napi::ThreadSafeFunction*>>::New(env, 
+                new std::shared_ptr<Napi::ThreadSafeFunction*>(progressTsfn),
+                [](Napi::Env env, std::shared_ptr<Napi::ThreadSafeFunction*>* data) {
+                    delete data;
+                }));
+            auto thenFunction = Napi::Function::New(env, [](const Napi::CallbackInfo& info) {
+                auto env = info.Env();
+                auto self = info.This().As<Napi::Object>();
+                auto promise = self.Get("_promise");
+                auto thenMethod = promise.As<Napi::Object>().Get("then").As<Napi::Function>();
+                
+                std::vector<napi_value> args;
+                for (size_t i = 0; i < info.Length(); i++) {
+                    args.push_back(info[i]);
+                }
+                
+                return thenMethod.Call(promise, args);
+            });
+            promiseObj.Set("then", thenFunction);
+            auto catchFunction = Napi::Function::New(env, [](const Napi::CallbackInfo& info) {
+                auto env = info.Env();
+                auto self = info.This().As<Napi::Object>();
+                auto promise = self.Get("_promise");
+                auto catchMethod = promise.As<Napi::Object>().Get("catch").As<Napi::Function>();
+                
+                std::vector<napi_value> args;
+                for (size_t i = 0; i < info.Length(); i++) {
+                    args.push_back(info[i]);
+                }
+                
+                return catchMethod.Call(promise, args);
+            });
+            promiseObj.Set("catch", catchFunction);
+            auto progressFunction = Napi::Function::New(env, [](const Napi::CallbackInfo& info) -> Napi::Value {
+                auto env = info.Env();
+                auto self = info.This().As<Napi::Object>();
+                
+                if (info.Length() < 1 || !info[0].IsFunction()) {
+                    Napi::TypeError::New(env, "Expected callback function").ThrowAsJavaScriptException();
+                    return env.Undefined();
+                }
+                
+                auto callback = info[0].As<Napi::Function>();
+                
+                // Get the progress callback storage
+                auto progressTsfnExternal = self.Get("_progressTsfn").As<Napi::External<std::shared_ptr<Napi::ThreadSafeFunction*>>>();
+                auto progressTsfnPtr = progressTsfnExternal.Data();
+                
+                // Create the ThreadSafeFunction for this progress callback
+                **progressTsfnPtr = new Napi::ThreadSafeFunction(
+                    Napi::ThreadSafeFunction::New(
+                        env,
+                        callback,
+                        "GenerateResponseProgress",
+                        0,
+                        1
+                    )
+                );
+                
+                return self; // Return self for chaining
+            });
+            promiseObj.Set("progress", progressFunction);
+
+            return promiseObj;
             
         } catch (const winrt::hresult_error& ex) {
-            deferred.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
-            return deferred.Promise();
+            auto errorPromise = Napi::Promise::Deferred::New(env);
+            errorPromise.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
+            return errorPromise.Promise();
         } catch (const std::exception& ex) {
-            deferred.Reject(Napi::Error::New(env, ex.what()).Value());
-            return deferred.Promise();
+            auto errorPromise = Napi::Promise::Deferred::New(env);
+            errorPromise.Reject(Napi::Error::New(env, ex.what()).Value());
+            return errorPromise.Promise();
         } catch (...) {
-            deferred.Reject(Napi::Error::New(env, "Unknown error occurred in GenerateResponseAsync").Value());
-            return deferred.Promise();
+            auto errorPromise = Napi::Promise::Deferred::New(env);
+            errorPromise.Reject(Napi::Error::New(env, "Unknown error occurred in GenerateResponseAsync").Value());
+            return errorPromise.Promise();
         }
     }
 };
