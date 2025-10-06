@@ -24,8 +24,9 @@ This package wraps the Microsoft Windows AI APIs in a Node.js native addon, allo
 
 ### 1. Clone the Repository
 
-````bash
+```bash
 git clone https://github.com/microsoft/electron-windows-ai-addon.git
+```
 
 ### 2. Build and Package winsdk Package
 
@@ -35,7 +36,7 @@ cd .\winsdk\src\winsdk-npm
 npm i
 npm run build
 npm pack
-````
+```
 
 ### 3. Install Dependencies
 
