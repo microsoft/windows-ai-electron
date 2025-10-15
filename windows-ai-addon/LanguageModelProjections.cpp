@@ -11,6 +11,7 @@ using namespace Windows::Data::Xml::Dom;
 // Static member definitions
 Napi::FunctionReference MyLanguageModelResponseResult::constructor;
 Napi::FunctionReference MyAIFeatureReadyResult::constructor;
+Napi::FunctionReference MyLanguageModel::constructor;
 
 // MyLanguageModelResponseResult Implementation
 Napi::Object MyLanguageModelResponseResult::Init(Napi::Env env, Napi::Object exports) {
@@ -375,10 +376,7 @@ Napi::Object MyLanguageModel::Init(Napi::Env env, Napi::Object exports) {
         StaticMethod("EnsureReadyAsync", &MyLanguageModel::MyEnsureReadyAsync)
     });
 
-    Napi::FunctionReference* constructor = new Napi::FunctionReference();
-    *constructor = Napi::Persistent(func);
-    env.SetInstanceData(constructor);
-
+    constructor = Napi::Persistent(func);
     exports.Set("LanguageModel", func);
     return exports;
 }
@@ -417,12 +415,7 @@ Napi::Value MyLanguageModel::MyCreateAsync(const Napi::CallbackInfo& info) {
                                 // persistentModel will be destroyed here, releasing the WinRT object
                             });
 
-                        auto constructor = env.GetInstanceData<Napi::FunctionReference>();
-                        if (!constructor) {
-                            deferred.Reject(Napi::Error::New(env, "Constructor not found in instance data").Value());
-                            return;
-                        }
-                        auto instance = constructor->New({ external });
+                        auto instance = MyLanguageModel::constructor.New({ external });
                         deferred.Resolve(instance);
                     } else {
                         deferred.Reject(Napi::Error::New(env, "LanguageModel creation was cancelled or failed.").Value());

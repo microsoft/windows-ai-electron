@@ -3,7 +3,7 @@
     {
       "target_name": "windows-ai-addon",
       "target_arch": "arm64",
-      "sources": ["windows-ai-addon.cc", "LanguageModelProjections.cpp", "ProjectionHelper.cpp", "ContentSeverity.cpp"],
+      "sources": ["windows-ai-addon.cc", "LanguageModelProjections.cpp", "ImagingProjections.cpp", "ProjectionHelper.cpp", "ContentSeverity.cpp"],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
         "<!(node -e \"require('nan')\")",

@@ -84,6 +84,7 @@ private:
 // Wrapper for LanguageModel
 class MyLanguageModel : public Napi::ObjectWrap<MyLanguageModel> {
 public:
+    static Napi::FunctionReference constructor;
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     
     static Napi::Value MyCreateAsync(const Napi::CallbackInfo& info);
