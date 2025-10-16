@@ -8,6 +8,10 @@ This package wraps the Microsoft Windows AI APIs in a Node.js native addon, allo
 
 - Access local Language Models (LLMs)
 - Use Content Safety filtering features
+- Generate image descriptions and captions
+- Perform optical character recognition (OCR) on images
+- Remove objects from images
+- Scale and resize images with AI
 - Check AI feature readiness and availability
 - Configure AI model options and parameters
 
@@ -108,6 +112,121 @@ Result object for AI feature readiness operations.
 - `ExtendedError` (number) - Extended error code
 - `Status` (number) - Operation status from AIFeatureReadyResultState enum
 
+### Imaging Classes
+
+#### `ImageDescriptionGenerator`
+
+Main class for generating descriptions and captions for images.
+
+**Static Methods:**
+
+- `CreateAsync()` - Asynchronously creates a new ImageDescriptionGenerator instance
+- `GetReadyState()` - Returns the current AI feature ready state for image description
+- `EnsureReadyAsync()` - Ensures image description features are ready for use
+
+**Instance Methods:**
+
+- `DescribeAsync(filePath, descriptionKind, contentFilterOptions)` - Generates description for an image
+- `Close()` - Closes the generator and releases resources
+
+#### `ImageDescriptionResult`
+
+Contains the result of an image description operation.
+
+**Properties:**
+
+- `Description` (string) - The generated image description
+- `Status` (number) - Status code from the operation
+
+#### `TextRecognizer`
+
+Main class for optical character recognition (OCR) on images.
+
+**Static Methods:**
+
+- `CreateAsync()` - Asynchronously creates a new TextRecognizer instance
+- `GetReadyState()` - Returns the current AI feature ready state for text recognition
+- `EnsureReadyAsync()` - Ensures text recognition features are ready for use
+
+**Instance Methods:**
+
+- `RecognizeTextFromImageAsync(filePath)` - Asynchronously recognizes text in an image
+- `RecognizeTextFromImage(filePath)` - Synchronously recognizes text in an image
+- `Close()` - Closes the recognizer and releases resources
+- `Dispose()` - Disposes the recognizer and cleans up resources
+
+#### `RecognizedText`
+
+Contains the complete text recognition results from an image.
+
+**Properties:**
+
+- `Lines` (RecognizedLine[]) - Array of recognized text lines
+- `TextAngle` (number) - Angle of the text in the image
+
+#### `RecognizedLine`
+
+Represents a single line of recognized text.
+
+**Properties:**
+
+- `BoundingBox` (RecognizedTextBoundingBox) - Bounding box coordinates for the line
+- `Style` (number) - Text style information
+- `LineStyleConfidence` (number) - Confidence level for the line style
+- `Text` (string) - The recognized text content
+- `Words` (RecognizedWord[]) - Array of individual words in the line
+
+#### `RecognizedWord`
+
+Represents a single recognized word.
+
+**Properties:**
+
+- `BoundingBox` (RecognizedTextBoundingBox) - Bounding box coordinates for the word
+- `MatchConfidence` (number) - Confidence level for the word recognition
+- `Text` (string) - The recognized word text
+
+#### `RecognizedTextBoundingBox`
+
+Defines the bounding box coordinates for recognized text elements.
+
+**Properties:**
+
+- `TopLeft` (object) - Top-left corner coordinates {X, Y}
+- `TopRight` (object) - Top-right corner coordinates {X, Y}
+- `BottomLeft` (object) - Bottom-left corner coordinates {X, Y}
+- `BottomRight` (object) - Bottom-right corner coordinates {X, Y}
+
+#### `ImageObjectRemover` [IN PROGRESS - NOT READY FOR USE]
+
+Class for removing objects from images using AI.
+
+**Static Methods:**
+
+- `CreateAsync()` - Asynchronously creates a new ImageObjectRemover instance
+- `GetReadyState()` - Returns the current AI feature ready state
+- `EnsureReadyAsync()` - Ensures object removal features are ready for use
+
+**Instance Methods:**
+
+- `RemoveAsync(...)` - Removes objects from an image (implementation pending)
+- `Close()` - Closes the remover and releases resources
+
+#### `ImageScaler` [IN PROGRESS - NOT READY FOR USE]
+
+Class for scaling and resizing images with AI enhancement.
+
+**Static Methods:**
+
+- `CreateAsync()` - Asynchronously creates a new ImageScaler instance
+- `GetReadyState()` - Returns the current AI feature ready state
+- `EnsureReadyAsync()` - Ensures image scaling features are ready for use
+
+**Instance Methods:**
+
+- `ScaleAsync(...)` - Scales an image with AI enhancement (implementation pending)
+- `Close()` - Closes the scaler and releases resources
+
 ### Content Safety Classes
 
 #### `ContentFilterOptions`
@@ -173,6 +292,13 @@ Severity levels for different types of text content.
 - `InProgress` (0) - Operation is in progress
 - `Success` (1) - Operation completed successfully
 - `Failure` (2) - Operation failed
+
+#### `ImageDescriptionKind`
+
+- `Caption` (0) - Generate a brief caption for the image
+- `DenseCaption` (1) - Generate a detailed description of the image
+- `AltText` (2) - Generate accessible alt text for the image
+- `Summary` (3) - Generate a summary description of the image
 
 ## Usage Examples
 
@@ -332,6 +458,142 @@ async function checkAIAvailability() {
 checkAIAvailability();
 ```
 
+### Image Description Generation
+
+```javascript
+const windowsAI = require("electron-windows-ai-addon");
+
+async function generateImageDescription() {
+  try {
+    // Check if image description features are ready
+    const readyResult =
+      await windowsAI.ImageDescriptionGenerator.EnsureReadyAsync();
+    if (readyResult.Status !== windowsAI.AIFeatureReadyResultState.Success) {
+      console.log("Image description not ready:", readyResult.ErrorDisplayText);
+      return;
+    }
+
+    // Create image description generator
+    const generator = await windowsAI.ImageDescriptionGenerator.CreateAsync();
+
+    // Set up content filtering
+    const contentFilter = new windowsAI.ContentFilterOptions();
+    // Configure content filtering as needed...
+
+    // Generate description with progress tracking
+    const imagePath = "C:\\path\\to\\your\\image.jpg";
+    const descriptionPromise = generator.DescribeAsync(
+      imagePath,
+      windowsAI.ImageDescriptionKind.BriefDescription,
+      contentFilter
+    );
+
+    // Track progress
+    descriptionPromise.progress((error, progressText) => {
+      if (error) {
+        console.error("Progress error:", error);
+        return;
+      }
+      console.log("Progress:", progressText);
+    });
+
+    // Get final result
+    const result = await descriptionPromise;
+
+    console.log("Image description:", result.Description);
+    console.log("Status:", result.Status);
+
+    // Clean up
+    generator.Close();
+  } catch (error) {
+    console.error("Error generating image description:", error);
+  }
+}
+
+generateImageDescription();
+```
+
+### Optical Character Recognition (OCR)
+
+```javascript
+const windowsAI = require("electron-windows-ai-addon");
+
+async function recognizeTextFromImage() {
+  try {
+    // Check if OCR features are ready
+    const readyResult = await windowsAI.TextRecognizer.EnsureReadyAsync();
+    if (readyResult.Status !== windowsAI.AIFeatureReadyResultState.Success) {
+      console.log("OCR not ready:", readyResult.ErrorDisplayText);
+      return;
+    }
+
+    // Create text recognizer
+    const recognizer = await windowsAI.TextRecognizer.CreateAsync();
+
+    // Recognize text from image
+    const imagePath = "C:\\path\\to\\your\\document.jpg";
+    const result = await recognizer.RecognizeTextFromImageAsync(imagePath);
+
+    console.log("Text angle:", result.TextAngle);
+    console.log("Number of lines:", result.Lines.length);
+
+    // Process each recognized line
+    result.Lines.forEach((line, lineIndex) => {
+      console.log(`\nLine ${lineIndex + 1}:`);
+      console.log("  Text:", line.Text);
+      console.log("  Style confidence:", line.LineStyleConfidence);
+      console.log("  Bounding box:", {
+        topLeft: line.BoundingBox.TopLeft,
+        topRight: line.BoundingBox.TopRight,
+        bottomLeft: line.BoundingBox.BottomLeft,
+        bottomRight: line.BoundingBox.BottomRight,
+      });
+
+      // Process individual words
+      line.Words.forEach((word, wordIndex) => {
+        console.log(`    Word ${wordIndex + 1}:`, word.Text);
+        console.log(`      Confidence: ${word.MatchConfidence}`);
+      });
+    });
+
+    // Clean up
+    recognizer.Close();
+  } catch (error) {
+    console.error("Error recognizing text:", error);
+  }
+}
+
+recognizeTextFromImage();
+```
+
+### Synchronous OCR for Better Performance
+
+```javascript
+const windowsAI = require("./windows-ai-addon/build/Release/windows-ai-addon.node");
+
+async function quickTextRecognition() {
+  try {
+    // Create recognizer
+    const recognizer = await windowsAI.TextRecognizer.CreateAsync();
+
+    // Use synchronous method for faster processing
+    const imagePath = "C:\\path\\to\\your\\document.jpg";
+    const result = recognizer.RecognizeTextFromImage(imagePath);
+
+    // Extract all text as a single string
+    const allText = result.Lines.map((line) => line.Text).join("\n");
+    console.log("Extracted text:\n", allText);
+
+    // Clean up resources
+    recognizer.Dispose(); // Use Dispose for complete cleanup
+  } catch (error) {
+    console.error("Error in quick text recognition:", error);
+  }
+}
+
+quickTextRecognition();
+```
+
 ## Error Handling
 
 Always check response status and handle potential errors:
@@ -392,6 +654,8 @@ electron-windows-ai-addon/
 │   ├── windows-ai-addon.cc          # Main addon entry point
 │   ├── LanguageModelProjections.h   # Language model API wrappers
 │   ├── LanguageModelProjections.cpp
+│   ├── ImagingProjections.h         # Imaging API wrappers
+│   ├── ImagingProjections.cpp
 │   ├── ContentSeverity.h            # Content safety API wrappers
 │   ├── ContentSeverity.cpp
 │   ├── ProjectionHelper.h           # Utility functions
@@ -405,4 +669,65 @@ electron-windows-ai-addon/
 
 ## This project is licensed under the MIT License - see the LICENSE file for details.
 
-**Note**: This addon requires Windows 11 with AI platform components installed. Performance and availability may vary based on hardware capabilities and system configuration.
+## Supported File Formats
+
+### Image Formats (for OCR and Description)
+
+- **JPEG** (.jpg, .jpeg)
+- **PNG** (.png)
+- **BMP** (.bmp)
+- **TIFF** (.tiff, .tif)
+- **GIF** (.gif)
+
+## Performance Considerations
+
+### Language Model
+
+- First-time model loading may take several seconds
+- Subsequent generations are typically faster
+- Progress callbacks provide real-time generation status
+
+### Imaging APIs
+
+- OCR performance varies with image quality and text clarity
+- Image description generation requires good hardware acceleration
+- Synchronous OCR methods (`RecognizeTextFromImage`) are faster for single operations
+- Asynchronous methods (`RecognizeTextFromImageAsync`) are better for UI responsiveness
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"AI not ready" errors**: Ensure Windows 11 22H2+ and Copilot+ PC requirements are met
+2. **Image file not found**: Use absolute file paths with proper Windows path separators
+3. **Content moderation blocks**: Adjust `ContentFilterOptions` severity levels as appropriate
+4. **Memory issues**: Always call `Close()` or `Dispose()` methods to clean up resources
+
+### Debug Tips
+
+```javascript
+// Check feature availability before use
+const checkAllFeatures = () => {
+  const features = {
+    "Language Model": windowsAI.LanguageModel.GetReadyState(),
+    "Image Description": windowsAI.ImageDescriptionGenerator.GetReadyState(),
+    "Text Recognition": windowsAI.TextRecognizer.GetReadyState(),
+    "Object Remover": windowsAI.ImageObjectRemover.GetReadyState(),
+    "Image Scaler": windowsAI.ImageScaler.GetReadyState(),
+  };
+
+  Object.entries(features).forEach(([name, state]) => {
+    const status =
+      state === windowsAI.AIFeatureReadyState.Ready
+        ? "✓ Ready"
+        : state === windowsAI.AIFeatureReadyState.NotReady
+        ? "⚠ Not Ready"
+        : state === windowsAI.AIFeatureReadyState.NotSupportedOnCurrentSystem
+        ? "✗ Not Supported"
+        : "✗ Disabled";
+    console.log(`${name}: ${status}`);
+  });
+};
+```
+
+**Note**: This addon requires Windows 11 with AI platform components installed. Performance and availability may vary based on hardware capabilities and system configuration. Copilot+ PC is recommended for optimal performance.
