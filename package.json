@@ -2,6 +2,7 @@
   "name": "electron-windows-ai-addon",
   "version": "0.0.1",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-windows-ai-addon": "node-gyp clean configure build --directory=windows-ai-addon --arch=arm64"
@@ -22,6 +23,8 @@
   "files": [
     "/windows-ai-addon",
     "/build",
-    "/LICENSE"
+    "/LICENSE",
+    "/index.js",
+    "/index.d.ts"
   ]
 }
