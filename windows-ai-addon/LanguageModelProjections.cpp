@@ -15,6 +15,7 @@ Napi::FunctionReference MyAIFeatureReadyResult::constructor;
 Napi::FunctionReference MyLanguageModel::constructor;
 Napi::FunctionReference MyConversationItem::constructor;
 Napi::FunctionReference MyTextSummarizer::constructor;
+Napi::FunctionReference MyTextRewriter::constructor;
 
 // MyLanguageModelResponseResult Implementation
 Napi::Object MyLanguageModelResponseResult::Init(Napi::Env env, Napi::Object exports) {
@@ -1020,5 +1021,143 @@ Napi::Value MyTextSummarizer::MyIsPromptLargerThanContext(const Napi::CallbackIn
     } catch (...) {
         Napi::Error::New(env, "Unknown error occurred in IsPromptLargerThanContext").ThrowAsJavaScriptException();
         return env.Null();
+    }
+}
+
+// MyTextRewriter Implementation
+
+Napi::Object MyTextRewriter::Init(Napi::Env env, Napi::Object exports) {
+    Napi::Function func = DefineClass(env, "TextRewriter", {
+        InstanceMethod("RewriteAsync", &MyTextRewriter::MyRewriteAsync)
+    });
+
+    constructor = Napi::Persistent(func);
+    exports.Set("TextRewriter", func);
+    return exports;
+}
+
+MyTextRewriter::MyTextRewriter(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyTextRewriter>(info) {
+    if (info.Length() == 0) {
+        Napi::Error::New(info.Env(), "TextRewriter constructor requires a LanguageModel instance").ThrowAsJavaScriptException();
+        return;
+    }
+    
+    // Check if first parameter is an External<TextRewriter> (for internal use)
+    if (info[0].IsExternal()) {
+        auto external = info[0].As<Napi::External<TextRewriter>>();
+        m_rewriter = std::make_shared<TextRewriter>(*external.Data());
+        return;
+    }
+    
+    // Check if first parameter is a MyLanguageModel instance (for direct instantiation)
+    if (info[0].IsObject()) {
+        auto languageModelObj = info[0].As<Napi::Object>();
+        auto languageModelWrapper = Napi::ObjectWrap<MyLanguageModel>::Unwrap(languageModelObj);
+        if (languageModelWrapper) {
+            try {
+                auto languageModel = languageModelWrapper->GetLanguageModel();
+                if (languageModel) {
+                    m_rewriter = std::make_shared<TextRewriter>(*languageModel);
+                    return;
+                }
+            } catch (const winrt::hresult_error& ex) {
+                std::string errorMsg = "Failed to create TextRewriter: " + winrt::to_string(ex.message());
+                Napi::Error::New(info.Env(), errorMsg).ThrowAsJavaScriptException();
+                return;
+            } catch (const std::exception& ex) {
+                std::string errorMsg = "Failed to create TextRewriter: " + std::string(ex.what());
+                Napi::Error::New(info.Env(), errorMsg).ThrowAsJavaScriptException();
+                return;
+            } catch (...) {
+                Napi::Error::New(info.Env(), "Unknown error creating TextRewriter").ThrowAsJavaScriptException();
+                return;
+            }
+        }
+    }
+    
+    Napi::Error::New(info.Env(), "TextRewriter constructor requires a valid LanguageModel instance").ThrowAsJavaScriptException();
+}
+
+Napi::Value MyTextRewriter::MyRewriteAsync(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (info.Length() < 1 || !info[0].IsString()) {
+        Napi::TypeError::New(env, "RewriteAsync requires at least one string parameter").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    
+    auto deferred = Napi::Promise::Deferred::New(env);
+    auto tsfn = Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, [](const Napi::CallbackInfo&) {}), "RewriteAsync", 0, 1);
+    auto tsfn_guard = std::shared_ptr<void>(nullptr, [tsfn](void*) mutable { tsfn.Release(); });
+    auto progressPromise = ProgressPromise::Create(env, deferred);
+    auto progressTsfn = progressPromise.GetProgressTsfn();
+
+    try {
+        std::string text = info[0].As<Napi::String>().Utf8Value();
+        winrt::hstring wText = winrt::to_hstring(text);
+        
+        // Determine which overload to use based on parameters
+        auto asyncOp = [&]() {
+            if (info.Length() >= 2) {
+                // Debug: Check what type the second parameter is
+                Napi::Value secondParam = info[1];
+                
+                // Check if second parameter is a number or can be converted to number
+                if (secondParam.IsNumber()) {
+                    // RewriteAsync(String, TextRewriteTone) overload
+                    int32_t toneValue = secondParam.As<Napi::Number>().Int32Value();
+                    TextRewriteTone tone = static_cast<TextRewriteTone>(toneValue);
+                    return m_rewriter->RewriteAsync(wText, tone);
+                } else {
+                    throw std::runtime_error("Second parameter must be a TextRewriteTone value");
+                }
+            }
+            // RewriteAsync(String) overload - uses default tone
+            return m_rewriter->RewriteAsync(wText);
+        }();
+        
+        asyncOp.Progress([progressTsfn](auto const&, auto const& progressText) {
+            if (progressTsfn && *progressTsfn) {
+                auto progressStr = winrt::to_string(progressText);
+                (*progressTsfn)->NonBlockingCall([progressStr](Napi::Env env, Napi::Function jsCallback) {
+                    try {
+                        jsCallback.Call({ env.Null(), Napi::String::New(env, progressStr) });
+                    } catch (...) {}
+                });
+            }
+        });
+        
+        asyncOp.Completed([deferred, tsfn, tsfn_guard](auto const& sender, auto const& status) mutable {
+            tsfn.BlockingCall([deferred, sender, status](Napi::Env env, Napi::Function) {
+                try {
+                    if (status == winrt::Windows::Foundation::AsyncStatus::Completed) {
+                        auto result = sender.GetResults();
+                        auto external = Napi::External<LanguageModelResponseResult>::New(env, &result);
+                        auto resultWrapper = MyLanguageModelResponseResult::constructor.New({ external });
+                        deferred.Resolve(resultWrapper);
+                    } else {
+                        deferred.Reject(Napi::Error::New(env, "RewriteAsync was cancelled or failed").Value());
+                    }
+                } catch (const winrt::hresult_error& ex) {
+                    deferred.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
+                } catch (const std::exception& ex) {
+                    deferred.Reject(Napi::Error::New(env, ex.what()).Value());
+                } catch (...) {
+                    deferred.Reject(Napi::Error::New(env, "Unknown error occurred in RewriteAsync").Value());
+                }
+            });
+        });
+        
+        return progressPromise.GetPromiseObject();
+        
+    } catch (const winrt::hresult_error& ex) {
+        deferred.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
+        return progressPromise.GetPromiseObject();
+    } catch (const std::exception& ex) {
+        deferred.Reject(Napi::Error::New(env, ex.what()).Value());
+        return progressPromise.GetPromiseObject();
+    } catch (...) {
+        deferred.Reject(Napi::Error::New(env, "Unknown error occurred in RewriteAsync").Value());
+        return progressPromise.GetPromiseObject();
     }
 }

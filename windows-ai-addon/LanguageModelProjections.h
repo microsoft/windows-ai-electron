@@ -26,6 +26,7 @@ class MyAIFeatureReadyResult;
 class MyLanguageModel;
 class MyConversationItem;
 class MyTextSummarizer;
+class MyTextRewriter;
 
 // Wrapper for LanguageModelResponseResult
 class MyLanguageModelResponseResult : public Napi::ObjectWrap<MyLanguageModelResponseResult> {
@@ -134,4 +135,18 @@ private:
     Napi::Value MySummarizeConversationAsync(const Napi::CallbackInfo& info);
     Napi::Value MySummarizeParagraphAsync(const Napi::CallbackInfo& info);
     Napi::Value MyIsPromptLargerThanContext(const Napi::CallbackInfo& info);
+};
+
+// Wrapper for TextRewriter
+class MyTextRewriter : public Napi::ObjectWrap<MyTextRewriter> {
+public:
+    static Napi::FunctionReference constructor;
+    static Napi::Object Init(Napi::Env env, Napi::Object exports);
+    
+    MyTextRewriter(const Napi::CallbackInfo& info);
+    
+private:
+    std::shared_ptr<TextRewriter> m_rewriter;
+    
+    Napi::Value MyRewriteAsync(const Napi::CallbackInfo& info);
 };

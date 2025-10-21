@@ -39,10 +39,29 @@ declare module "electron-windows-ai-addon" {
   }
   
   export enum ImageDescriptionKind {
-    Caption = 0,
-    DenseCaption = 1,
-    AltText = 2,
-    Summary = 3
+    BriefDescription = 0,
+    DetailedDescription = 1,
+    DiagramDescription = 2,
+    AccessibleDescription = 3
+  }
+
+  export enum TextRewriteTone {
+    Default = 0,
+    General = 1,
+    Casual = 2,
+    Formal = 3
+  }
+
+  export enum ImageDescriptionResultStatus {
+    Success = 0,
+    Failure = 1,
+    ContentFiltered = 2
+  }
+
+  export enum RecognizedLineStyle {
+    None = 0,
+    Handwritten = 1,
+    Printed = 2
   }
   
   // =============================
@@ -85,6 +104,32 @@ declare module "electron-windows-ai-addon" {
     readonly ErrorDisplayText: string;
     readonly ExtendedError: number;
     readonly Status: AIFeatureReadyResultState;
+  }
+
+  export class ConversationItem {
+    constructor(message?: string, participant?: string);
+    Message: string;
+    Participant: string;
+  }
+
+  // =============================
+  // Text Intelligence Classes
+  // =============================
+
+  export class TextSummarizer {
+    constructor(languageModel: LanguageModel);
+    
+    SummarizeAsync(text: string): ProgressPromise<LanguageModelResponseResult>;
+    SummarizeConversationAsync(conversationItems: ConversationItem[]): ProgressPromise<LanguageModelResponseResult>;
+    SummarizeParagraphAsync(text: string): ProgressPromise<LanguageModelResponseResult>;
+    IsPromptLargerThanContext(text: string): boolean;
+  }
+
+  export class TextRewriter {
+    constructor(languageModel: LanguageModel);
+    
+    RewriteAsync(text: string): ProgressPromise<LanguageModelResponseResult>;
+    RewriteAsync(text: string, tone: TextRewriteTone): ProgressPromise<LanguageModelResponseResult>;
   }
   
   // =============================
@@ -133,7 +178,7 @@ declare module "electron-windows-ai-addon" {
   
   export class ImageDescriptionResult {
     readonly Description: string;
-    readonly Status: number;
+    readonly Status: ImageDescriptionResultStatus;
   }
   
   export class TextRecognizer {
@@ -154,7 +199,7 @@ declare module "electron-windows-ai-addon" {
   
   export class RecognizedLine {
     readonly BoundingBox: RecognizedTextBoundingBox;
-    readonly Style: number;
+    readonly Style: RecognizedLineStyle;
     readonly LineStyleConfidence: number;
     readonly Text: string;
     readonly Words: RecognizedWord[];
@@ -230,12 +275,20 @@ declare module "electron-windows-ai-addon" {
     SeverityLevel: typeof SeverityLevel;
     AIFeatureReadyResultState: typeof AIFeatureReadyResultState;
     ImageDescriptionKind: typeof ImageDescriptionKind;
+    TextRewriteTone: typeof TextRewriteTone;
+    ImageDescriptionResultStatus: typeof ImageDescriptionResultStatus;
+    RecognizedLineStyle: typeof RecognizedLineStyle;
     
     // Language Model Classes
     LanguageModel: typeof LanguageModel;
     LanguageModelOptions: typeof LanguageModelOptions;
     LanguageModelResponseResult: typeof LanguageModelResponseResult;
     AIFeatureReadyResult: typeof AIFeatureReadyResult;
+    ConversationItem: typeof ConversationItem;
+    
+    // Text Intelligence Classes
+    TextSummarizer: typeof TextSummarizer;
+    TextRewriter: typeof TextRewriter;
     
     // Content Safety Classes
     ContentFilterOptions: typeof ContentFilterOptions;

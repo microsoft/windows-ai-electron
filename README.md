@@ -9,6 +9,7 @@ This package wraps the Microsoft Windows AI APIs in a Node.js native addon, allo
 - Access local Language Models (LLMs)
 - Use Content Safety filtering features
 - Summarize text and conversations with AI
+- Rewrite text with different tones (formal, casual, general)
 - Generate image descriptions and captions
 - Perform optical character recognition (OCR) on images
 - Remove objects from images
@@ -139,6 +140,19 @@ Configuration options for conversation summarization.
 - `includeMessageCitations` (boolean) - Whether to include references to specific messages in the summary
 - `includeParticipantAttribution` (boolean) - Whether to attribute parts of the summary to specific participants
 
+#### `TextRewriter`
+
+Main class for AI-powered text rewriting and tone adjustment.
+
+**Constructor:**
+
+- `new TextRewriter(languageModel)` - Creates a TextRewriter with the provided LanguageModel instance
+
+**Instance Methods:**
+
+- `RewriteAsync(text)` - Asynchronously rewrites the provided text using the default tone
+- `RewriteAsync(text, tone)` - Asynchronously rewrites the provided text using the specified TextRewriteTone
+
 #### `AIFeatureReadyResult`
 
 Result object for AI feature readiness operations.
@@ -174,7 +188,7 @@ Contains the result of an image description operation.
 **Properties:**
 
 - `Description` (string) - The generated image description
-- `Status` (number) - Status code from the operation
+- `Status` (ImageDescriptionResultStatus) - Status code from ImageDescriptionResultStatus enum
 
 #### `TextRecognizer`
 
@@ -209,7 +223,7 @@ Represents a single line of recognized text.
 **Properties:**
 
 - `BoundingBox` (RecognizedTextBoundingBox) - Bounding box coordinates for the line
-- `Style` (number) - Text style information
+- `Style` (RecognizedLineStyle) - Text style information from RecognizedLineStyle enum
 - `LineStyleConfidence` (number) - Confidence level for the line style
 - `Text` (string) - The recognized text content
 - `Words` (RecognizedWord[]) - Array of individual words in the line
@@ -333,12 +347,33 @@ Severity levels for different types of text content.
 
 #### `ImageDescriptionKind`
 
-- `Caption` (0) - Generate a brief caption for the image
-- `DenseCaption` (1) - Generate a detailed description of the image
-- `AltText` (2) - Generate accessible alt text for the image
-- `Summary` (3) - Generate a summary description of the image
+- `BriefDescription` (0) - Generate a brief description for the image
+- `DetailedDescription` (1) - Generate a detailed description of the image
+- `DiagramDescription` (2) - Generate a description suitable for diagrams and technical images
+- `AccessibleDescription` (3) - Generate accessible description optimized for screen readers
+
+#### `TextRewriteTone`
+
+- `Default` (0) - Use the default tone for text rewriting
+- `General` (1) - Use a general, neutral tone
+- `Casual` (2) - Use a casual, informal tone
+- `Formal` (3) - Use a formal, professional tone
+
+#### `ImageDescriptionResultStatus`
+
+- `Success` (0) - Image description generated successfully
+- `Failure` (1) - Image description generation failed
+- `ContentFiltered` (2) - Image description blocked by content filtering
+
+#### `RecognizedLineStyle`
+
+- `None` (0) - No specific style detected
+- `Handwritten` (1) - Handwritten text style
+- `Printed` (2) - Printed text style
 
 ## Usage Examples
+
+Below are a few usage examples of the APIs in this module. For more samples on how to use the electron-windows-ai-addon, see https://github.com/microsoft/electron-gallery. For more samples on how to use Windows AI Foundry, see https://github.com/microsoft/ai-dev-Gallery.
 
 ### Basic Language Model Usage
 
@@ -708,6 +743,140 @@ async function checkAIAvailability() {
 }
 
 checkAIAvailability();
+```
+
+### Text Rewriting
+
+```javascript
+const windowsAI = require("electron-windows-ai-addon");
+
+async function rewriteText() {
+  try {
+    // Setup AI components
+    const readyResult = await windowsAI.LanguageModel.EnsureReadyAsync();
+    if (readyResult.Status !== windowsAI.AIFeatureReadyResultState.Success) {
+      console.log("AI not ready:", readyResult.ErrorDisplayText);
+      return;
+    }
+
+    const model = await windowsAI.LanguageModel.CreateAsync();
+    const textRewriter = new windowsAI.TextRewriter(model);
+
+    // Text to rewrite
+    const originalText =
+      "Hey there! Just wanted to let you know that the meeting got pushed back to 3pm. Hope that works for everyone!";
+
+    // Rewrite with default tone
+    console.log("Original text:", originalText);
+    console.log("\\n--- Rewriting with different tones ---\\n");
+
+    // Default tone
+    const defaultResult = await textRewriter.RewriteAsync(originalText);
+    if (
+      defaultResult.Status === windowsAI.LanguageModelResponseStatus.Complete
+    ) {
+      console.log("Default tone:", defaultResult.Text);
+    }
+
+    // Formal tone
+    const formalResult = await textRewriter.RewriteAsync(
+      originalText,
+      windowsAI.TextRewriteTone.Formal
+    );
+    if (
+      formalResult.Status === windowsAI.LanguageModelResponseStatus.Complete
+    ) {
+      console.log("Formal tone:", formalResult.Text);
+    }
+
+    // Casual tone
+    const casualResult = await textRewriter.RewriteAsync(
+      originalText,
+      windowsAI.TextRewriteTone.Casual
+    );
+    if (
+      casualResult.Status === windowsAI.LanguageModelResponseStatus.Complete
+    ) {
+      console.log("Casual tone:", casualResult.Text);
+    }
+
+    // General tone
+    const generalResult = await textRewriter.RewriteAsync(
+      originalText,
+      windowsAI.TextRewriteTone.General
+    );
+    if (
+      generalResult.Status === windowsAI.LanguageModelResponseStatus.Complete
+    ) {
+      console.log("General tone:", generalResult.Text);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+rewriteText();
+```
+
+### Text Rewriting with Progress Tracking
+
+```javascript
+const windowsAI = require("electron-windows-ai-addon");
+
+async function rewriteTextWithProgress(progressCallback) {
+  try {
+    // Setup AI components
+    const readyResult = await windowsAI.LanguageModel.EnsureReadyAsync();
+    if (readyResult.Status !== windowsAI.AIFeatureReadyResultState.Success) {
+      console.log("AI not ready:", readyResult.ErrorDisplayText);
+      return;
+    }
+
+    const model = await windowsAI.LanguageModel.CreateAsync();
+    const textRewriter = new windowsAI.TextRewriter(model);
+
+    // Longer text to rewrite (to better demonstrate progress)
+    const originalText = `
+      The quarterly business review meeting has been scheduled for next Tuesday at 2:00 PM 
+      in the main conference room. All department heads are expected to attend and present 
+      their Q3 results and Q4 projections. Please bring your laptops and ensure all 
+      presentation materials are ready beforehand. Coffee and snacks will be provided. 
+      If you have any scheduling conflicts, please reach out to HR immediately so we can 
+      make alternative arrangements. This is a mandatory meeting for all senior staff members.
+    `;
+
+    console.log("Original text:", originalText.trim());
+    console.log("\n--- Rewriting with progress tracking ---\n");
+
+    // Create the promise with progress tracking
+    const rewritePromise = textRewriter.RewriteAsync(
+      originalText,
+      windowsAI.TextRewriteTone.Formal
+    );
+
+    // Set up progress tracking
+    rewritePromise.progress((error, progressText) => {
+      progressCallback(progressText);
+    });
+
+    // Wait for completion
+    const result = await rewritePromise;
+
+    if (result.Status === windowsAI.LanguageModelResponseStatus.Complete) {
+      console.log("\n--- Final Result ---");
+      console.log("Rewritten text:", result.Text);
+    } else {
+      console.log("Rewriting failed with status:", result.Status);
+      if (result.ExtendedError) {
+        console.log("Extended error:", result.ExtendedError);
+      }
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+rewriteTextWithProgress(progressCallback);
 ```
 
 ### Image Description Generation

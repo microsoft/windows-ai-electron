@@ -39,6 +39,16 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     
     exports.Set("SeverityLevel", severityLevel);
     
+    // Add TextRewriteTone enum
+    Napi::Object textRewriteTone = Napi::Object::New(env);
+    textRewriteTone.Set("Default", Napi::Number::New(env, 0));
+    textRewriteTone.Set("General", Napi::Number::New(env, 1));
+    textRewriteTone.Set("Casual", Napi::Number::New(env, 2));
+    textRewriteTone.Set("Formal", Napi::Number::New(env, 3)); 
+    // Note: Windows AI API documentation lists 'Concise' option as well, but this option does not exist
+    
+    exports.Set("TextRewriteTone", textRewriteTone);
+    
     // Add AIFeatureReadyResultState enum
     Napi::Object aiFeatureReadyResultState = Napi::Object::New(env);
     aiFeatureReadyResultState.Set("InProgress", Napi::Number::New(env, 0));
@@ -81,6 +91,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports = MyAIFeatureReadyResult::Init(env, exports);
     exports = MyConversationItem::Init(env, exports);
     exports = MyTextSummarizer::Init(env, exports);
+    exports = MyTextRewriter::Init(env, exports);
     
     exports = MyImageDescriptionGenerator::Init(env, exports);
     exports = MyImageDescriptionResult::Init(env, exports);
