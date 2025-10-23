@@ -16,6 +16,9 @@ Napi::FunctionReference MyLanguageModel::constructor;
 Napi::FunctionReference MyConversationItem::constructor;
 Napi::FunctionReference MyTextSummarizer::constructor;
 Napi::FunctionReference MyTextRewriter::constructor;
+Napi::FunctionReference MyTextToTableConverter::constructor;
+Napi::FunctionReference MyTextToTableResponseResult::constructor;
+Napi::FunctionReference MyTextToTableRow::constructor;
 
 // MyLanguageModelResponseResult Implementation
 Napi::Object MyLanguageModelResponseResult::Init(Napi::Env env, Napi::Object exports) {
@@ -1159,5 +1162,245 @@ Napi::Value MyTextRewriter::MyRewriteAsync(const Napi::CallbackInfo& info) {
     } catch (...) {
         deferred.Reject(Napi::Error::New(env, "Unknown error occurred in RewriteAsync").Value());
         return progressPromise.GetPromiseObject();
+    }
+}
+
+// MyTextToTableConverter Implementation
+Napi::Object MyTextToTableConverter::Init(Napi::Env env, Napi::Object exports) {
+    Napi::Function func = DefineClass(env, "TextToTableConverter", {
+        InstanceMethod("ConvertAsync", &MyTextToTableConverter::MyConvertAsync)
+    });
+
+    constructor = Napi::Persistent(func);
+    constructor.SuppressDestruct();
+
+    exports.Set("TextToTableConverter", func);
+    return exports;
+}
+
+MyTextToTableConverter::MyTextToTableConverter(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyTextToTableConverter>(info) {
+    Napi::Env env = info.Env();
+    
+    if (info.Length() != 1 || !info[0].IsObject()) {
+        Napi::TypeError::New(env, "TextToTableConverter constructor requires a LanguageModel object").ThrowAsJavaScriptException();
+        return;
+    }
+    
+    try {
+        auto languageModelWrapper = Napi::ObjectWrap<MyLanguageModel>::Unwrap(info[0].As<Napi::Object>());
+        auto languageModel = languageModelWrapper->GetLanguageModel();
+        
+        if (languageModel == nullptr) {
+            Napi::Error::New(env, "Invalid LanguageModel object").ThrowAsJavaScriptException();
+            return;
+        }
+        
+        m_converter = std::make_shared<TextToTableConverter>(*languageModel);
+        
+    } catch (const winrt::hresult_error& ex) {
+        Napi::Error::New(env, winrt::to_string(ex.message())).ThrowAsJavaScriptException();
+    } catch (...) {
+        Napi::Error::New(env, "Failed to create TextToTableConverter").ThrowAsJavaScriptException();
+    }
+}
+
+Napi::Value MyTextToTableConverter::MyConvertAsync(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (info.Length() < 1 || !info[0].IsString()) {
+        Napi::TypeError::New(env, "ConvertAsync requires at least one string parameter").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    
+    auto deferred = Napi::Promise::Deferred::New(env);
+    auto tsfn = Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, [](const Napi::CallbackInfo&) {}), "ConvertAsync", 0, 1);
+    auto tsfn_guard = std::shared_ptr<void>(nullptr, [tsfn](void*) mutable { tsfn.Release(); });
+    auto progressPromise = ProgressPromise::Create(env, deferred);
+    auto progressTsfn = progressPromise.GetProgressTsfn();
+
+    try {
+        std::string text = info[0].As<Napi::String>().Utf8Value();
+        winrt::hstring wText = winrt::to_hstring(text);
+        
+        // Call the ConvertAsync method
+        auto asyncOp = m_converter->ConvertAsync(wText);
+        
+        asyncOp.Progress([progressTsfn](auto const&, auto const& progressText) {
+            if (progressTsfn && *progressTsfn) {
+                auto progressStr = winrt::to_string(progressText);
+                (*progressTsfn)->NonBlockingCall([progressStr](Napi::Env env, Napi::Function jsCallback) {
+                    try {
+                        jsCallback.Call({ env.Null(), Napi::String::New(env, progressStr) });
+                    } catch (...) {}
+                });
+            }
+        });
+        
+        asyncOp.Completed([deferred, tsfn, tsfn_guard](auto const& sender, auto const& status) mutable {
+            tsfn.BlockingCall([deferred, sender, status](Napi::Env env, Napi::Function) {
+                try {
+                    if (status == winrt::Windows::Foundation::AsyncStatus::Completed) {
+                        auto result = sender.GetResults();
+                        auto external = Napi::External<TextToTableResponseResult>::New(env, &result);
+                        auto resultObj = MyTextToTableResponseResult::constructor.New({ external });
+                        deferred.Resolve(resultObj);
+                    } else {
+                        deferred.Reject(Napi::Error::New(env, "ConvertAsync operation failed").Value());
+                    }
+                } catch (const winrt::hresult_error& ex) {
+                    deferred.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
+                } catch (const std::exception& ex) {
+                    deferred.Reject(Napi::Error::New(env, ex.what()).Value());
+                } catch (...) {
+                    deferred.Reject(Napi::Error::New(env, "Unknown error occurred in ConvertAsync completion").Value());
+                }
+            });
+        });
+        
+        return progressPromise.GetPromiseObject();
+        
+    } catch (const winrt::hresult_error& ex) {
+        deferred.Reject(Napi::Error::New(env, winrt::to_string(ex.message())).Value());
+        return progressPromise.GetPromiseObject();
+    } catch (const std::exception& ex) {
+        deferred.Reject(Napi::Error::New(env, ex.what()).Value());
+        return progressPromise.GetPromiseObject();
+    } catch (...) {
+        deferred.Reject(Napi::Error::New(env, "Unknown error occurred in ConvertAsync").Value());
+        return progressPromise.GetPromiseObject();
+    }
+}
+
+// MyTextToTableResponseResult Implementation
+Napi::Object MyTextToTableResponseResult::Init(Napi::Env env, Napi::Object exports) {
+    Napi::Function func = DefineClass(env, "TextToTableResponseResult", {
+        InstanceAccessor("ExtendedError", &MyTextToTableResponseResult::GetExtendedError, nullptr),
+        InstanceAccessor("Status", &MyTextToTableResponseResult::GetStatus, nullptr),
+        InstanceMethod("GetRows", &MyTextToTableResponseResult::GetRows)
+    });
+
+    constructor = Napi::Persistent(func);
+    constructor.SuppressDestruct();
+
+    exports.Set("TextToTableResponseResult", func);
+    return exports;
+}
+
+MyTextToTableResponseResult::MyTextToTableResponseResult(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyTextToTableResponseResult>(info) {
+    Napi::Env env = info.Env();
+    
+    if (info.Length() == 1 && info[0].IsExternal()) {
+        auto external = info[0].As<Napi::External<TextToTableResponseResult>>();
+        m_result = *external.Data();
+    }
+}
+
+bool MyTextToTableResponseResult::HasResult() const {
+    return m_result.has_value();
+}
+
+Napi::Value MyTextToTableResponseResult::GetExtendedError(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (!HasResult()) {
+        return env.Null();
+    }
+    
+    try {
+        auto extendedError = m_result.value().ExtendedError();
+        return Napi::Number::New(env, static_cast<int32_t>(extendedError));
+    } catch (const winrt::hresult_error& ex) {
+        Napi::Error::New(env, winrt::to_string(ex.message())).ThrowAsJavaScriptException();
+        return env.Null();
+    }
+}
+
+Napi::Value MyTextToTableResponseResult::GetStatus(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (!HasResult()) {
+        return env.Null();
+    }
+    
+    try {
+        auto status = m_result.value().Status();
+        return Napi::Number::New(env, static_cast<int>(status));
+    } catch (const winrt::hresult_error& ex) {
+        Napi::Error::New(env, winrt::to_string(ex.message())).ThrowAsJavaScriptException();
+        return env.Null();
+    }
+}
+
+Napi::Value MyTextToTableResponseResult::GetRows(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (!HasResult()) {
+        return env.Null();
+    }
+    
+    try {
+        auto rows = m_result.value().GetRows();
+        auto jsArray = Napi::Array::New(env);
+        
+        uint32_t index = 0;
+        for (auto const& row : rows) {
+            auto external = Napi::External<TextToTableRow>::New(env, const_cast<TextToTableRow*>(&row));
+            auto rowObj = MyTextToTableRow::constructor.New({ external });
+            jsArray[index++] = rowObj;
+        }
+        
+        return jsArray;
+    } catch (const winrt::hresult_error& ex) {
+        Napi::Error::New(env, winrt::to_string(ex.message())).ThrowAsJavaScriptException();
+        return env.Null();
+    }
+}
+
+// MyTextToTableRow Implementation
+Napi::Object MyTextToTableRow::Init(Napi::Env env, Napi::Object exports) {
+    Napi::Function func = DefineClass(env, "TextToTableRow", {
+        InstanceMethod("GetColumns", &MyTextToTableRow::GetColumns)
+    });
+
+    constructor = Napi::Persistent(func);
+    constructor.SuppressDestruct();
+
+    exports.Set("TextToTableRow", func);
+    return exports;
+}
+
+MyTextToTableRow::MyTextToTableRow(const Napi::CallbackInfo& info) : Napi::ObjectWrap<MyTextToTableRow>(info) {
+    Napi::Env env = info.Env();
+    
+    if (info.Length() == 1 && info[0].IsExternal()) {
+        auto external = info[0].As<Napi::External<TextToTableRow>>();
+        m_row = *external.Data();
+    }
+}
+
+bool MyTextToTableRow::HasRow() const {
+    return m_row.has_value();
+}
+
+Napi::Value MyTextToTableRow::GetColumns(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (!HasRow()) {
+        return env.Null();
+    }
+    
+    try {
+        auto columns = m_row.value().GetColumns();
+        auto jsArray = Napi::Array::New(env);
+        
+        uint32_t index = 0;
+        for (auto const& column : columns) {
+            jsArray[index++] = Napi::String::New(env, winrt::to_string(column));
+        }
+        
+        return jsArray;
+    } catch (const winrt::hresult_error& ex) {
+        Napi::Error::New(env, winrt::to_string(ex.message())).ThrowAsJavaScriptException();
+        return env.Null();
     }
 }

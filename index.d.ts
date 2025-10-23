@@ -131,6 +131,22 @@ declare module "electron-windows-ai-addon" {
     RewriteAsync(text: string): ProgressPromise<LanguageModelResponseResult>;
     RewriteAsync(text: string, tone: TextRewriteTone): ProgressPromise<LanguageModelResponseResult>;
   }
+
+  export class TextToTableConverter {
+    constructor(languageModel: LanguageModel);
+    
+    ConvertAsync(text: string): ProgressPromise<TextToTableResponseResult>;
+  }
+
+  export class TextToTableResponseResult {
+    readonly ExtendedError: number;
+    readonly Status: number;
+    GetRows(): TextToTableRow[];
+  }
+
+  export class TextToTableRow {
+    GetColumns(): string[];
+  }
   
   // =============================
   // Content Safety Classes
@@ -289,6 +305,9 @@ declare module "electron-windows-ai-addon" {
     // Text Intelligence Classes
     TextSummarizer: typeof TextSummarizer;
     TextRewriter: typeof TextRewriter;
+    TextToTableConverter: typeof TextToTableConverter;
+    TextToTableResponseResult: typeof TextToTableResponseResult;
+    TextToTableRow: typeof TextToTableRow;
     
     // Content Safety Classes
     ContentFilterOptions: typeof ContentFilterOptions;

@@ -10,6 +10,7 @@ This package wraps the Microsoft Windows AI APIs in a Node.js native addon, allo
 - Use Content Safety filtering features
 - Summarize text and conversations with AI
 - Rewrite text with different tones (formal, casual, general)
+- Convert unstructured text into structured table formats
 - Generate image descriptions and captions
 - Perform optical character recognition (OCR) on images
 - Remove objects from images
@@ -152,6 +153,39 @@ Main class for AI-powered text rewriting and tone adjustment.
 
 - `RewriteAsync(text)` - Asynchronously rewrites the provided text using the default tone
 - `RewriteAsync(text, tone)` - Asynchronously rewrites the provided text using the specified TextRewriteTone
+
+#### `TextToTableConverter`
+
+Main class for AI-powered conversion of text content into structured table format.
+
+**Constructor:**
+
+- `new TextToTableConverter(languageModel)` - Creates a TextToTableConverter with the provided LanguageModel instance
+
+**Instance Methods:**
+
+- `ConvertAsync(text)` - Asynchronously converts the provided text into a structured table format, returns TextToTableResponseResult
+
+#### `TextToTableResponseResult`
+
+Result object containing structured table data from text conversion operations.
+
+**Properties:**
+
+- `ExtendedError` (string) - Extended error information as hex string (e.g., "0x80004005") if available
+- `Status` (number) - Status code from the conversion operation
+
+**Methods:**
+
+- `GetRows()` - Returns an array of TextToTableRow objects representing the table structure
+
+#### `TextToTableRow`
+
+Represents a single row in a converted table structure.
+
+**Methods:**
+
+- `GetColumns()` - Returns an array of strings representing the column values for this row
 
 #### `AIFeatureReadyResult`
 
@@ -877,6 +911,159 @@ async function rewriteTextWithProgress(progressCallback) {
 }
 
 rewriteTextWithProgress(progressCallback);
+```
+
+### Text to Table Conversion
+
+```javascript
+const windowsAI = require("electron-windows-ai-addon");
+
+async function convertTextToTable() {
+  try {
+    // Setup AI components
+    const readyResult = await windowsAI.LanguageModel.EnsureReadyAsync();
+    if (readyResult.Status !== windowsAI.AIFeatureReadyResultState.Success) {
+      console.log("AI not ready:", readyResult.ErrorDisplayText);
+      return;
+    }
+
+    const model = await windowsAI.LanguageModel.CreateAsync();
+    const tableConverter = new windowsAI.TextToTableConverter(model);
+
+    // Sample text data to convert to table format
+    const textData = `
+      Sales Report for Q3 2024:
+      - Product A sold 150 units at $25 each for total revenue of $3750
+      - Product B sold 200 units at $40 each for total revenue of $8000  
+      - Product C sold 75 units at $60 each for total revenue of $4500
+      - Product D sold 300 units at $15 each for total revenue of $4500
+      Total units sold: 725
+      Total revenue: $20750
+    `;
+
+    console.log("Original text:", textData.trim());
+    console.log("\\n--- Converting to table format ---\\n");
+
+    // Convert text to table format
+    const result = await tableConverter.ConvertAsync(textData);
+
+    console.log("\\n--- Table Conversion Results ---");
+    console.log("Status:", result.Status);
+    if (result.ExtendedError) {
+      console.log("Extended Error:", result.ExtendedError);
+    }
+
+    // Get the structured table data
+    const rows = result.GetRows();
+    console.log(`\\nExtracted ${rows.length} rows:`);
+
+    rows.forEach((row, rowIndex) => {
+      const columns = row.GetColumns();
+      console.log(`Row ${rowIndex + 1}: [${columns.join(", ")}]`);
+    });
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+convertTextToTable();
+```
+
+### Text to Table Conversion with Progress
+
+```javascript
+const windowsAI = require("electron-windows-ai-addon");
+
+async function convertTextToTableWithProgress() {
+  try {
+    // Setup AI components
+    const readyResult = await windowsAI.LanguageModel.EnsureReadyAsync();
+    if (readyResult.Status !== windowsAI.AIFeatureReadyResultState.Success) {
+      console.log("AI not ready:", readyResult.ErrorDisplayText);
+      return;
+    }
+
+    const model = await windowsAI.LanguageModel.CreateAsync();
+    const tableConverter = new windowsAI.TextToTableConverter(model);
+
+    // Complex data that would benefit from table structure
+    const complexTextData = `
+      Annual Financial Report 2024:
+      
+      Revenue by Quarter:
+      Q1 had total sales of $125,000 with 1,250 transactions and average order value of $100
+      Q2 showed growth with $156,000 in sales, 1,400 transactions, average order $111.43
+      Q3 continued upward trend: $189,000 total sales, 1,620 transactions, $116.67 average order
+      Q4 finished strong with $203,000 in sales, 1,750 transactions, and $116 average order value
+      
+      Department Performance:
+      Marketing department spent $45,000 and generated 2,100 leads with conversion rate of 12%
+      Sales team closed 252 deals worth $673,000 total value
+      Customer Service handled 8,500 tickets with 95% satisfaction rating
+      Operations reduced costs by 8% while maintaining quality metrics above 98%
+      
+      Regional Breakdown:
+      North region: 35% of sales, 2,200 customers, $115 average transaction
+      South region: 28% of sales, 1,890 customers, $124 average transaction  
+      East region: 22% of sales, 1,456 customers, $119 average transaction
+      West region: 15% of sales, 998 customers, $108 average transaction
+    `;
+
+    console.log("Original complex text data:");
+    console.log(complexTextData.trim());
+    console.log(
+      "\\n--- Converting to structured table format with progress ---\\n"
+    );
+
+    // Create the promise with progress tracking
+    const convertPromise = tableConverter.ConvertAsync(complexTextData);
+
+    // Set up progress tracking
+    convertPromise.progress((error, progressText) => {
+      if (error) {
+        console.error("Progress error:", error);
+      } else {
+        console.log("Conversion progress:", progressText);
+      }
+    });
+
+    // Wait for completion
+    const result = await convertPromise;
+
+    console.log("\\n--- Structured Table Results ---");
+    console.log("Status:", result.Status);
+    if (result.ExtendedError) {
+      console.log("Extended Error:", result.ExtendedError);
+    }
+
+    // Process the structured table data
+    const rows = result.GetRows();
+    console.log(
+      `\\nSuccessfully extracted ${rows.length} rows of structured data:`
+    );
+
+    // Display as formatted table
+    rows.forEach((row, rowIndex) => {
+      const columns = row.GetColumns();
+      if (rowIndex === 0) {
+        console.log("\\n" + "=".repeat(80));
+        console.log("TABLE DATA:");
+        console.log("=".repeat(80));
+      }
+      console.log(
+        `Row ${String(rowIndex + 1).padStart(2)}: ${columns
+          .map((col) => `"${col}"`)
+          .join(" | ")}`
+      );
+    });
+
+    console.log("=".repeat(80));
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+convertTextToTableWithProgress();
 ```
 
 ### Image Description Generation

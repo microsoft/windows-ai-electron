@@ -92,6 +92,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports = MyConversationItem::Init(env, exports);
     exports = MyTextSummarizer::Init(env, exports);
     exports = MyTextRewriter::Init(env, exports);
+    exports = MyTextToTableConverter::Init(env, exports);
+    exports = MyTextToTableResponseResult::Init(env, exports);
+    exports = MyTextToTableRow::Init(env, exports);
     
     exports = MyImageDescriptionGenerator::Init(env, exports);
     exports = MyImageDescriptionResult::Init(env, exports);

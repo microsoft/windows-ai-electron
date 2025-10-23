@@ -27,6 +27,9 @@ class MyLanguageModel;
 class MyConversationItem;
 class MyTextSummarizer;
 class MyTextRewriter;
+class MyTextToTableConverter;
+class MyTextToTableResponseResult;
+class MyTextToTableRow;
 
 // Wrapper for LanguageModelResponseResult
 class MyLanguageModelResponseResult : public Napi::ObjectWrap<MyLanguageModelResponseResult> {
@@ -149,4 +152,50 @@ private:
     std::shared_ptr<TextRewriter> m_rewriter;
     
     Napi::Value MyRewriteAsync(const Napi::CallbackInfo& info);
+};
+
+// Wrapper for TextToTableConverter
+class MyTextToTableConverter : public Napi::ObjectWrap<MyTextToTableConverter> {
+public:
+    static Napi::FunctionReference constructor;
+    static Napi::Object Init(Napi::Env env, Napi::Object exports);
+    
+    MyTextToTableConverter(const Napi::CallbackInfo& info);
+    
+private:
+    std::shared_ptr<TextToTableConverter> m_converter;
+    
+    Napi::Value MyConvertAsync(const Napi::CallbackInfo& info);
+};
+
+// Wrapper for TextToTableResponseResult
+class MyTextToTableResponseResult : public Napi::ObjectWrap<MyTextToTableResponseResult> {
+public:
+    static Napi::FunctionReference constructor;
+    static Napi::Object Init(Napi::Env env, Napi::Object exports);
+    
+    MyTextToTableResponseResult(const Napi::CallbackInfo& info);
+    bool HasResult() const;
+
+private:
+    std::optional<TextToTableResponseResult> m_result;
+    
+    Napi::Value GetExtendedError(const Napi::CallbackInfo& info);
+    Napi::Value GetStatus(const Napi::CallbackInfo& info);
+    Napi::Value GetRows(const Napi::CallbackInfo& info);
+};
+
+// Wrapper for TextToTableRow
+class MyTextToTableRow : public Napi::ObjectWrap<MyTextToTableRow> {
+public:
+    static Napi::FunctionReference constructor;
+    static Napi::Object Init(Napi::Env env, Napi::Object exports);
+    
+    MyTextToTableRow(const Napi::CallbackInfo& info);
+    bool HasRow() const;
+
+private:
+    std::optional<TextToTableRow> m_row;
+    
+    Napi::Value GetColumns(const Napi::CallbackInfo& info);
 };
