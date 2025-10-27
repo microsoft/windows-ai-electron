@@ -27,7 +27,11 @@ This package wraps the Microsoft Windows AI APIs in a Node.js native addon, allo
 - **Yarn** package manager
 - **Copilot+PC**
 
-## Installation and Building
+## Dependencies
+
+This package depends on the [windows-sdk](https://github.com/microsoft/winsdk) package. Any electron app which uses this package must also take a dependency on `windows-sdk` and follow its installation and setup steps.
+
+## Building
 
 ### 1. Clone the Repository
 
@@ -37,12 +41,13 @@ git clone https://github.com/microsoft/electron-windows-ai-addon.git
 
 ### 2. Build and Package winsdk Package
 
+The windows-sdk package has not been published to npm yet. You can install a copy of the package from GitHub.
+
+Check electron-windows-ai-addon's `package.json` for its windows-sdk package dependency. Then download the [prerelease .tgz](https://github.com/microsoft/winsdk/releases) (can be found within Assets folder of the Release) for that windows-sdk version.
+
 ```bash
-git clone https://github.com/microsoft/winsdk.git
-cd .\winsdk\src\winsdk-npm
-npm i
-npm run build
-npm pack
+cd \<your-electron-app\>
+yarn add \<path to tgz\>
 ```
 
 ### 3. Install Dependencies
@@ -63,6 +68,107 @@ yarn build-windows-ai-addon
 
 ```bash
 npm pack
+```
+
+## Get Started Using electron-windows-ai-addon in an Electron App
+
+### 1. Create an Electron App
+
+Create an electron app by following the getting started directions at [Electron: Building you First App](https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app) or [Electron Forge: Getting Started](https://www.electronforge.io/).
+
+### 2. Add electron-windows-ai-addon as a Dependency
+
+The electron-windows-ai-addon package has not been published to npm yet. To install a copy of this package download the [latest prerelease .tgz](https://github.com/microsoft/electron-windows-ai-addon/releases) within Assets folder of the Release.
+
+```bash
+cd \<your-electron-app\>
+yarn add \<path to tgz\>
+```
+
+### 2. Add winsdk as a Dependency
+
+The windows-sdk package has not been published to npm yet. You can install a copy of the package from GitHub.
+
+Examine which windows-sdk version your downloaded `electron-windows-ai-addon` package depends on by checking the [Release notes](<(https://github.com/microsoft/electron-windows-ai-addon/releases)>) of the version of `electron-windows-ai-addon` you installed. Then download the [prerelease .tgz](https://github.com/microsoft/winsdk/releases) (can be found within Assets folder of the Release) for that windows-sdk version.
+
+```bash
+cd \<your-electron-app\>
+yarn add \<path to tgz\>
+```
+
+### 4. Install and Setup Dependencies
+
+```bash
+yarn install
+winsdk init --prerelease
+```
+
+Edit winsdk.yaml to use Microsoft.WindowsAppSDK v1.8.250702007-experimental4
+
+```bash
+winsdk restore
+winsdk node add-electron-debug-identity
+```
+
+### 5. Use electron-windows-ai-addon
+
+Create a preload.js file at the root of your project.
+
+`preload.js`:
+
+```javascript
+const { contextBridge } = require("electron");
+const {
+  LanguageModel,
+  AIFeatureReadyState,
+} = require("electron-windows-ai-addon");
+
+contextBridge.exposeInMainWorld("windowsAI", {
+  generateText: async (prompt) => {
+    var readyState = LanguageModel.GetReadyState();
+    if (readyState == AIFeatureReadyState.NotReady) {
+      await LanguageModel.EnsureReadyAsync();
+    } else if (readyState == AIFeatureReadyState.Ready) {
+      var languageModel = await LanguageModel.CreateAsync();
+      if (languageModel) {
+        var result = await languageModel.GenerateResponseAsync(prompt);
+        return result.Text;
+      }
+    }
+  },
+});
+```
+
+### 6. Create Button to Call API onClick
+
+To your app's index.html, add a button control which calls generateText.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Windows AI Example</title>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("myButton").onclick = function () {
+          const generated = await window.windowsAI.generateText("Are you there?");
+          console.log(generated);
+        };
+      });
+    </script>
+    ...
+  </head>
+  <body>
+    ...
+    <button
+      id="myButton"
+      style="width: 20px; height: 30px; background: rgba(230, 230, 230, 0.7); border-radius: 12px;"
+    >
+      Run Phi Silica Text Generation
+    </button>
+    ...
+  </body>
+</html>
 ```
 
 ## Supported APIs
@@ -1307,9 +1413,22 @@ electron-windows-ai-addon/
 ### Common Issues
 
 1. **"AI not ready" errors**: Ensure Windows 11 22H2+ and Copilot+ PC requirements are met
-2. **Image file not found**: Use absolute file paths with proper Windows path separators
-3. **Content moderation blocks**: Adjust `ContentFilterOptions` severity levels as appropriate
-4. **Memory issues**: Always call `Close()` or `Dispose()` methods to clean up resources
+2. **EnsureReadyAsync cancelled or failed**: Ensure appxmanifest has `maxtestedversion` set to 26226 and the `systemAIModels` capability has been added.
+3. **Class Not Registered**:
+
+- Make sure windows-sdk package was setup correctly.
+- Ensure `winsdk.yaml` files in app exactly matches the `winsdk.yaml` file in electron-windows-ai-addon.
+- Ensure `yarn winsdk restore` then `yarn winsdk node add-electron-debug-identity` have been called.
+- If the issue is still persisting:
+  - Delete `node_modules` and `.windsdk`
+  - Run `yarn cache clean`
+  - Run `yarn install`
+  - Run `yarn winsdk restore`
+  - Run `yarn winsdk node add-electron-debug-identity`
+
+4. **Image file not found**: Use absolute file paths with proper Windows path separators
+5. **Content moderation blocks**: Adjust `ContentFilterOptions` severity levels as appropriate
+6. **Memory issues**: Always call `Close()` or `Dispose()` methods to clean up resources
 
 ### Debug Tips
 
