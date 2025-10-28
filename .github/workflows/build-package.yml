@@ -1,0 +1,101 @@
+name: Build and Package
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # Required for creating releases
+
+jobs:
+  build-and-package:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Required for build number calculation
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Setup GitHub CLI
+        uses: sersoft-gmbh/setup-gh-cli-action@v1
+        with:
+          version: latest
+
+      - name: Authenticate GitHub CLI
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          $env:REPO_TOKEN | gh auth login --with-token
+
+      # Run the build script which handles building, testing, versioning, npm packaging, and MSIX bundling
+      - name: Build, test, and package
+        id: build
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        run: |
+          .\scripts\build-cli.ps1
+
+          # Get version information for release tagging
+          $packageJson = Get-Content "package.json" | ConvertFrom-Json
+          $baseVersion = $packageJson.version
+          $buildNumber = & ".\scripts\get-build-number.ps1"
+          $fullVersion = "$baseVersion-prerelease.$buildNumber"
+
+          # Extract winsdk version from package.json
+          $winsdkDep = $packageJson.devDependencies.'@microsoft/winsdk'
+          $winsdkVersion = "Unknown"
+          if ($winsdkDep -match "microsoft-winsdk-(.+)\.tgz") {
+            $winsdkVersion = $matches[1]
+          }
+
+          # Export for use in subsequent steps
+          echo "version=$fullVersion" >> $env:GITHUB_OUTPUT
+          echo "base_version=$baseVersion" >> $env:GITHUB_OUTPUT
+          echo "build_number=$buildNumber" >> $env:GITHUB_OUTPUT
+          echo "winsdk_version=$winsdkVersion" >> $env:GITHUB_OUTPUT
+
+      # Upload all build artifacts
+      - name: Upload npm package
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: ./*.tgz
+
+      # Create GitHub pre-release (only on push to main)
+      - name: Create Pre-Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.build.outputs.version }}
+          name: Pre-release v${{ steps.build.outputs.version }}
+          prerelease: true
+          generate_release_notes: true
+          body: |
+            🚀 **Automated Pre-release Build**
+
+            Version: `${{ steps.build.outputs.version }}`
+            Base Version: `${{ steps.build.outputs.base_version }}`
+            Build Number: `${{ steps.build.outputs.build_number }}`
+            Windows SDK Version: `${{ steps.build.outputs.winsdk_version }}`
+            Commit: `${{ github.sha }}`
+
+
+            ## Installation
+            ```bash
+            npm install electron-windows-ai-addon-${{ steps.build.outputs.version }}.tgz
+            ```
+          files: |
+            ./*.tgz
