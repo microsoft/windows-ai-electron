@@ -40,7 +40,7 @@ yarn add <path to tgz>
 
 The `@microsoft/winappcli` package has not been published to npm yet. You can install a copy of the package from GitHub.
 
-Check which `@microsoft/winappcli` version your `electron-windows-ai-addon` package depends on in the [Release notes](<(https://github.com/microsoft/electron-windows-ai-addon/releases)>). Then download the [prerelease .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that version of `@microsoft/winappcli`.
+Check which `@microsoft/winappcli` version your `electron-windows-ai-addon` package depends on in the [Release notes](<(https://github.com/microsoft/electron-windows-ai-addon/releases)>). Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that version of `@microsoft/winappcli`.
 
 ```bash
 yarn add <path to tgz>
