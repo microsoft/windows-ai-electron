@@ -95,7 +95,7 @@ jobs:
 
             ## Installation
             ```bash
-            npm install electron-windows-ai-addon-${{ steps.build.outputs.version }}.tgz
+            npm install winapp-windows-ai-${{ steps.build.outputs.version }}.tgz
             ```
           files: |
             artifacts/*.tgz

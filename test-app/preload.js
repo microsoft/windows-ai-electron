@@ -5,21 +5,23 @@ const {
 } = require("../index.js");
 
 contextBridge.exposeInMainWorld("windowsAI", {
-  generateText: async (prompt) => {
-    try{
-        var readyState = LanguageModel.GetReadyState();
-        if (readyState == AIFeatureReadyState.NotReady) {
-            await LanguageModel.EnsureReadyAsync();
-        } else if (readyState == AIFeatureReadyState.Ready) {
-            var languageModel = await LanguageModel.CreateAsync();
-            if (languageModel) {
-                var result = await languageModel.GenerateResponseAsync(prompt);
-                return result.Text;
-            }
-        }
+  summarizeText: async (prompt) => {
+    try {
+        const languageModel = await LanguageModel.CreateAsync();
+        const textSummarizer = new TextSummarizer(languageModel);
+
+        const progressResult = textSummarizer.SummarizeAsync(prompt);
+
+        progressResult.progress((sender, progress) => {
+          progressCallback(progress);
+        });
+
+        const result = await progressResult;
+
+        return result.Text;
+
     } catch (error) {
-        console.error("Error generating text:", error);
-        throw error;
+        console.error('Error summarizing text:', error);
     }
 },
 });

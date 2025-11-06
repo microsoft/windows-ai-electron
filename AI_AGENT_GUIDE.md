@@ -1,6 +1,6 @@
 # AI Agent Development Guide
 
-## electron-windows-ai-addon Repository
+## winapp-windows-ai Repository
 
 > **Purpose**: This guide provides AI agents with comprehensive context about the repository structure, coding patterns, architectural decisions, and development practices to ensure consistent and high-quality contributions.
 
@@ -387,7 +387,7 @@ console.log("Complete:", finalResult.Text);
 
 ```javascript
 // Always test the happy path AND error conditions
-const windowsAI = require("./build/Release/windows-ai-addon.node");
+const windowsAI = require("./build/Release/winapp-windows-ai.node");
 
 async function testFeature() {
   try {
@@ -423,7 +423,7 @@ async function testFeature() {
 
 ```bash
 # Clean build
-yarn build-windows-ai-addon
+yarn build-winapp-windows-ai
 
 # Debug build (in binding.gyp, set 'Debug' configuration)
 # Provides better stack traces and debugging symbols

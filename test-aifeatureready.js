@@ -1,6 +1,6 @@
 // Test script to verify AIFeatureReadyResult functionality
 try {
-    const windowsAI = require('./windows-ai-addon/build/Release/windows-ai-addon.node');
+    const windowsAI = require('./winapp-windows-ai/build/Release/winapp-windows-ai.node');
     
     console.log('Testing AIFeatureReadyResult functionality...\n');
     

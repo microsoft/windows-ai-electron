@@ -19,17 +19,17 @@ To verify your device is able to access Windows AI models, you can download the 
 
 This package depends on the [@microsoft/winappcli](https://github.com/microsoft/WinAppCli) package. Any electron app which uses this package must also take a dependency on `@microsoft/winappcli` and follow its installation and setup steps.
 
-## Get Started Using electron-windows-ai-addon in an Electron App
+## Get Started Using winapp-windows-ai in an Electron App
 
 ### 1. Create an Electron App
 
 Create an electron app by following the getting started directions at [Electron: Building you First App](https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app).
 
-The instructions below follow the steps for adding `electron-windows-ai-addon` to a standard Electron app. This module can also be added to Electron apps built using Electron Forge and other templates. The setup steps should be similar, but additional configuration may be required to support using NodeJS addons.
+The instructions below follow the steps for adding `wniapp-windows-ai` to a standard Electron app. This module can also be added to Electron apps built using Electron Forge and other templates. The setup steps should be similar, but additional configuration may be required to support using NodeJS addons.
 
-### 2. Add electron-windows-ai-addon as a Dependency
+### 2. Add winapp-windows-ai as a Dependency
 
-The `electron-windows-ai-addon` package has not been published to npm yet. To install a copy of this package download the [latest prerelease .tgz](https://github.com/microsoft/electron-windows-ai-addon/releases) within Assets folder of the Release.
+The `winapp-windows-ai` package has not been published to npm yet. To install a copy of this package download the [latest prerelease .tgz](https://github.com/microsoft/winapp-windows-ai/releases) within Assets folder of the Release.
 
 ```bash
 cd <your-electron-app>
@@ -40,7 +40,7 @@ yarn add <path to tgz>
 
 The `@microsoft/winappcli` package has not been published to npm yet. You can install a copy of the package from GitHub.
 
-Check which `@microsoft/winappcli` version your `electron-windows-ai-addon` package depends on in the [Release notes](<(https://github.com/microsoft/electron-windows-ai-addon/releases)>). Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that version of `@microsoft/winappcli`.
+Check which `@microsoft/winappcli` version your `winapp-windows-ai` package depends on in the [Release notes](<(https://github.com/microsoft/winapp-windows-ai/releases)>). Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that version of `@microsoft/winappcli`.
 
 ```bash
 yarn add <path to tgz>
@@ -78,7 +78,7 @@ Add `systemAIModels` Capability in `appxmanifest.xml`:
 yarn winapp node add-electron-debug-identity
 ```
 
-### 6. Use electron-windows-ai-addon
+### 6. Use winapp-windows-ai
 
 Create a `preload.js` file at the root of your project.
 
@@ -86,10 +86,7 @@ Create a `preload.js` file at the root of your project.
 
 ```javascript
 const { contextBridge } = require("electron");
-const {
-  LanguageModel,
-  AIFeatureReadyState,
-} = require("electron-windows-ai-addon");
+const { LanguageModel, AIFeatureReadyState } = require("winapp-windows-ai");
 
 contextBridge.exposeInMainWorld("windowsAI", {
   generateText: async (prompt) => {
@@ -508,12 +505,12 @@ Severity levels for different types of text content.
 
 ## Usage Examples
 
-Below are a few usage examples of the APIs in this module. For more samples on how to use the `electron-windows-ai-addon`, see https://github.com/microsoft/electron-gallery. For more samples on how to use Windows AI Foundry, see https://github.com/microsoft/ai-dev-Gallery.
+Below are a few usage examples of the APIs in this module. For more samples on how to use the `winapp-windows-ai`, see https://github.com/microsoft/electron-gallery. For more samples on how to use Windows AI Foundry, see https://github.com/microsoft/ai-dev-Gallery.
 
 ### Basic Language Model Usage
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function generateText() {
   try {
@@ -552,7 +549,7 @@ generateText();
 ### Text Summarization
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function summarizeText() {
   try {
@@ -600,7 +597,7 @@ summarizeText();
 ### Conversation Summarization
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function summarizeConversation() {
   try {
@@ -672,7 +669,7 @@ summarizeConversation();
 ### Paragraph Summarization with Progress Tracking
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function summarizeParagraphWithProgress() {
   try {
@@ -725,7 +722,7 @@ summarizeParagraphWithProgress();
 ### Checking Prompt Context Size
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function checkConversationSize() {
   try {
@@ -766,7 +763,7 @@ checkConversationSize();
 ### Streaming Text Generation with Progress (with Options)
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function generateTextWithProgress(progressCallback) {
   try {
@@ -818,7 +815,7 @@ async function generateTextWithProgress(progressCallback) {
 ### Content Safety Configuration
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 function setupContentFiltering() {
   // Create text content severity settings
@@ -852,7 +849,7 @@ function setupContentFiltering() {
 ### Checking AI Feature Availability
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function checkAIAvailability() {
   try {
@@ -883,7 +880,7 @@ checkAIAvailability();
 ### Text Rewriting
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function rewriteText() {
   try {
@@ -956,7 +953,7 @@ rewriteText();
 ### Text Rewriting with Progress Tracking
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function rewriteTextWithProgress(progressCallback) {
   try {
@@ -1017,7 +1014,7 @@ rewriteTextWithProgress(progressCallback);
 ### Text to Table Conversion
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function convertTextToTable() {
   try {
@@ -1073,7 +1070,7 @@ convertTextToTable();
 ### Text to Table Conversion with Progress
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function convertTextToTableWithProgress() {
   try {
@@ -1170,7 +1167,7 @@ convertTextToTableWithProgress();
 ### Image Description Generation
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function generateImageDescription() {
   try {
@@ -1225,7 +1222,7 @@ generateImageDescription();
 ### Optical Character Recognition (OCR)
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function recognizeTextFromImage() {
   try {
@@ -1278,7 +1275,7 @@ recognizeTextFromImage();
 ### Synchronous OCR for Better Performance
 
 ```javascript
-const windowsAI = require("electron-windows-ai-addon");
+const windowsAI = require("winapp-windows-ai");
 
 async function quickTextRecognition() {
   try {
@@ -1308,9 +1305,9 @@ quickTextRecognition();
 ### Project Structure
 
 ```
-electron-windows-ai-addon/
-├── windows-ai-addon/
-│   ├── windows-ai-addon.cc          # Main addon entry point
+winapp-windows-ai/
+├── winapp-windows-ai/
+│   ├── winapp-windows-ai.cc          # Main addon entry point
 │   ├── LanguageModelProjections.h   # Language model & text summarization API wrappers
 │   ├── LanguageModelProjections.cpp
 │   ├── ImagingProjections.h         # Imaging API wrappers
@@ -1329,21 +1326,21 @@ electron-windows-ai-addon/
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/microsoft/electron-windows-ai-addon.git
+git clone https://github.com/microsoft/winapp-windows-ai.git
 ```
 
 #### 2. Download Windows App CLI Package
 
 The `@microsoft/winappcli` package has not been published to npm yet. You can install a copy of the package from GitHub.
 
-Check `electron-windows-ai-addon`'s `package.json` for its `@microsoft/winappcli` package dependency. Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that `@microsoft/winappcli` version.
+Check `winapp-windows-ai`'s `package.json` for its `@microsoft/winappcli` package dependency. Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that `@microsoft/winappcli` version.
 
 Move tgz file to filepath specified in repo's `package.json` for `@microsoft/winappcli` package or update `package.json` to tgz path.
 
 #### 3. Install Dependencies
 
 ```bash
-cd <path to electron-windows-ai-addon repo>
+cd <path to winapp-windows-ai repo>
 yarn install
 yarn winapp restore
 ```
@@ -1351,7 +1348,7 @@ yarn winapp restore
 #### 4. Build the Native Addon
 
 ```bash
-yarn build-windows-ai-addon
+yarn build-winapp-windows-ai
 ```
 
 #### 5. Locally Package Addon
@@ -1382,7 +1379,7 @@ yarn winapp node add-electron-debug-identity
 yarn run start
 ```
 
-If you make changes to the electron-windows-ai-addon package and want to see your changes loaded into the sample app, make sure to re-build the addon before re-running `test-app`.
+If you make changes to the winapp-windows-ai package and want to see your changes loaded into the sample app, make sure to re-build the addon before re-running `test-app`.
 
 ## License
 
@@ -1397,7 +1394,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 3. **Class Not Registered**:
 
    1. Make sure `@microsoft/winappcli` package was setup correctly.
-   2. Ensure `winapp.yaml` file in app exactly matches the `winapp.yaml` file in `electron-windows-ai-addon`.
+   2. Ensure `winapp.yaml` file in app exactly matches the `winapp.yaml` file in `winapp-windows-ai`.
    3. Ensure `yarn winapp restore` then `yarn winapp node add-electron-debug-identity` have been called.
    4. If the issue is still persisting:
       1. Delete `node_modules` and `.winapp`
@@ -1407,8 +1404,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
       5. Run `yarn winapp node add-electron-debug-identity`
 
 4. **App renders blank**: Make sure to disable sandboxing when running your Electron app on Windows, then re-run `yarn winapp node add-electron-debug-identity` (see [Add Debug Identity + Capabilities to App](#5-add-debug-identity--capabilities-to-app))
-5. **"Can't find module: electron-windows-ai-addon" errors**: Make sure sandboxing has been disabled in `webPreferences` (see [Use electron-windows-ai-addon](#6-use-electron-windows-ai-addon))
-6. **"generateText" function doesn't exist" errors**: Make sure `preload.js` file has been created. Add `preload.js` to `webPreferences` with the correct absolute path (see [Use electron-windows-ai-addon](#6-use-electron-windows-ai-addon))
+5. **"Can't find module: winapp-windows-ai" errors**: Make sure sandboxing has been disabled in `webPreferences` (see [Use winapp-windows-ai](#6-use-winapp-windows-ai))
+6. **"generateText" function doesn't exist" errors**: Make sure `preload.js` file has been created. Add `preload.js` to `webPreferences` with the correct absolute path (see [Use winapp-windows-ai](#6-use-winapp-windows-ai))
 7. **Image file not found**: You must use absolute file paths with proper Windows path separators
 8. **Content moderation blocks**: Adjust `ContentFilterOptions` severity levels as appropriate
 9. **Memory issues**: Always call `Close()` or `Dispose()` methods to clean up resources

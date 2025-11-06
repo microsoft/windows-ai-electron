@@ -1,7 +1,7 @@
 # Windows SDK packages and generated files
 .winapp/
 node_modules/
-windows-ai-addon/build
+winapp-windows-ai/build
 *.tgz
 
 # Development certificate

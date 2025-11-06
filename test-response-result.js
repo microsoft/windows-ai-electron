@@ -1,4 +1,4 @@
-const { LanguageModel, LanguageModelResponseResult, LanguageModelResponseStatus } = require('./windows-ai-addon/build/Release/windows-ai-addon.node');
+const { LanguageModel, LanguageModelResponseResult, LanguageModelResponseStatus } = require('./winapp-windows-ai/build/Release/winapp-windows-ai.node');
 
 async function testResponseResult() {
     console.log('Testing LanguageModelResponseResult wrapper class...\n');

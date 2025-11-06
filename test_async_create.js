@@ -1,4 +1,4 @@
-const addon = require('./windows-ai-addon/build/Release/windows-ai-addon.node');
+const addon = require('./winapp-windows-ai/build/Release/winapp-windows-ai.node');
 
 async function testAsyncCreate() {
     console.log('Testing async CreateAsync...');

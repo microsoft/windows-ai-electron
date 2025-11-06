@@ -1,11 +1,11 @@
 {
-  "name": "electron-windows-ai-addon",
+  "name": "winapp-windows-ai",
   "version": "0.1.0",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-windows-ai-addon": "node-gyp clean configure build --directory=windows-ai-addon --arch=arm64",
+    "build-winapp-windows-ai": "node-gyp clean configure build --directory=winapp-windows-ai --arch=arm64",
     "clean": "node -e \"require('fs').rmSync('bin', {recursive: true, force: true})\""
   },
   "keywords": [],
@@ -13,7 +13,7 @@
   "description": "Electron addon which creates JavaScript projections for the native Windows AI APIs.",
   "repository": {
     "type": "git",
-    "url": "git@github.com:microsoft/electron-windows-ai-addon.git"
+    "url": "git@github.com:microsoft/winapp-windows-ai.git"
   },
   "devDependencies": {
     "nan": "^2.23.0",
@@ -21,7 +21,7 @@
     "node-gyp": "^11.4.2"
   },
   "files": [
-    "/windows-ai-addon",
+    "/winapp-windows-ai",
     "/build",
     "/LICENSE",
     "/index.js",

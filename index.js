@@ -1,4 +1,4 @@
-const windowsaiAddon = require('./windows-ai-addon/build/Release/windows-ai-addon.node');
+const windowsaiAddon = require('./winapp-windows-ai/build/Release/winapp-windows-ai.node');
 
 windowsaiAddon.version = require('./package.json').version;
 

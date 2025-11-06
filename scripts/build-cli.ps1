@@ -95,7 +95,7 @@ try
     # Define paths
     $ArtifactsPath = "artifacts"
 
-    Write-Host "[*] Starting electron-windows-ai-addon build process..." -ForegroundColor Green
+    Write-Host "[*] Starting winapp-windows-ai build process..." -ForegroundColor Green
     Write-Host "Project root: $ProjectRoot" -ForegroundColor Gray
 
     # Step 0: Setup dependencies
@@ -136,7 +136,7 @@ try
 
     # Step 1: Build addon
     Write-Host "[BUILD] Building addon..." -ForegroundColor Blue
-    yarn build-windows-ai-addon
+    yarn build-winapp-windows-ai
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to build addon"
         exit 1

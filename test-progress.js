@@ -1,4 +1,4 @@
-const { LanguageModel } = require('./windows-ai-addon/build/Release/windows-ai-addon.node');
+const { LanguageModel } = require('./winapp-windows-ai/build/Release/winapp-windows-ai.node');
 
 async function testProgressStreaming() {
     console.log('Testing Windows AI Progress Streaming with .progress() method...\n');
