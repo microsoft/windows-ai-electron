@@ -14,10 +14,10 @@
 .PARAMETER SkipDependencies
     Skip dependency installation (useful for local development)
 .EXAMPLE
-    .\scripts\build-cli.ps1
+    .\scripts\build-pkg.ps1
 .EXAMPLE
     # For local development when dependencies are already installed
-    .\scripts\build-cli.ps1 -SkipDependencies
+    .\scripts\build-pkg.ps1 -SkipDependencies
 #>
 
 param(

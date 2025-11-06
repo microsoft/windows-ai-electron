@@ -1,6 +1,15 @@
-# Windows AI Addon for Electron
+<h1 align="center">
+  <span>Windows AI Addon for Electron</span>
+</h1>
+<h3 align="center">
+  <span>Leverage Windows AI capabilities directly from your app's JavaScript</span>
+</h3>
+<br/><br/>
 
-A Node.js native addon that provides access to [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/), enabling Electron applications to leverage Windows AI capabilities directly from JavaScript.
+> [!IMPORTANT]  
+> The Windows AI Addon for Electron is in preview and in active development, and we'd love your feedback! Share your thoughts by creating an [issue](https://github.com/microsoft/winapp-windows-ai/issues).
+
+The Windows AI Addon for Electron is a Node.js native addon that provides access to [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/), enabling Electron applications to leverage Windows AI capabilities directly from JavaScript.
 
 ## Prerequisites
 

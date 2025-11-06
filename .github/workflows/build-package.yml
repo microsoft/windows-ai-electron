@@ -46,7 +46,7 @@ jobs:
         env:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
-          .\scripts\build-cli.ps1
+          .\scripts\build-pkg.ps1
 
           # Get version information for release tagging
           $packageJson = Get-Content "package.json" | ConvertFrom-Json
