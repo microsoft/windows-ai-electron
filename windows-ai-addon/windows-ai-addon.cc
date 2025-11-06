@@ -2,6 +2,7 @@
 #include "LanguageModelProjections.h"
 #include "ImagingProjections.h"
 #include "ContentSeverity.h"
+#include "LimitedAccessFeature.h"
 
 using namespace winrt;
 using namespace Microsoft::Windows::AI;
@@ -82,6 +83,15 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     
     exports.Set("RecognizedLineStyle", recognizedLineStyle);
     
+    // Add LimitedAccessFeatureStatus enum
+    Napi::Object limitedAccessFeatureStatus = Napi::Object::New(env);
+    limitedAccessFeatureStatus.Set("Available", Napi::Number::New(env, 0));
+    limitedAccessFeatureStatus.Set("AvailableWithoutToken", Napi::Number::New(env, 1));
+    limitedAccessFeatureStatus.Set("Unknown", Napi::Number::New(env, 2));
+    limitedAccessFeatureStatus.Set("Unavailable", Napi::Number::New(env, 3));
+    
+    exports.Set("LimitedAccessFeatureStatus", limitedAccessFeatureStatus);
+    
     exports = MyLanguageModel::Init(env, exports);
     exports = MyLanguageModelResponseResult::Init(env, exports);
     exports = MyLanguageModelOptions::Init(env, exports);
@@ -106,6 +116,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports = MyImageObjectExtractor::Init(env, exports);
     exports = MyImageObjectExtractorHint::Init(env, exports);
     exports = MyImageObjectRemover::Init(env, exports);
+    
+    exports = MyLimitedAccessFeatures::Init(env, exports);
+    exports = MyLimitedAccessFeatureRequestResult::Init(env, exports);
     
     return MyImageScaler::Init(env, exports);
 }

@@ -64,6 +64,13 @@ declare module "electron-windows-ai-addon" {
     Printed = 2
   }
   
+  export enum LimitedAccessFeatureStatus {
+    Available = 0,
+    AvailableWithoutToken = 1,
+    Unknown = 2,
+    Unavailable = 3
+  }
+  
   // =============================
   // Progress Promise Interface
   // =============================
@@ -275,6 +282,20 @@ declare module "electron-windows-ai-addon" {
   }
   
   // =============================
+  // Limited Access Features
+  // =============================
+  
+  export class LimitedAccessFeatures {
+    static TryUnlockFeature(featureId: string, token: string, developerSignature: string): LimitedAccessFeatureRequestResult;
+  }
+  
+  export class LimitedAccessFeatureRequestResult {
+    readonly FeatureId: string;
+    readonly Status: LimitedAccessFeatureStatus;
+    readonly EstimatedRemovalDate: Date | null;
+  }
+  
+  // =============================
   // Module Properties
   // =============================
   
@@ -294,6 +315,7 @@ declare module "electron-windows-ai-addon" {
     TextRewriteTone: typeof TextRewriteTone;
     ImageDescriptionResultStatus: typeof ImageDescriptionResultStatus;
     RecognizedLineStyle: typeof RecognizedLineStyle;
+    LimitedAccessFeatureStatus: typeof LimitedAccessFeatureStatus;
     
     // Language Model Classes
     LanguageModel: typeof LanguageModel;
@@ -326,6 +348,10 @@ declare module "electron-windows-ai-addon" {
     ImageScaler: typeof ImageScaler;
     ImageObjectExtractor: typeof ImageObjectExtractor;
     ImageObjectExtractorHint: typeof ImageObjectExtractorHint;
+    
+    // Limited Access Features
+    LimitedAccessFeatures: typeof LimitedAccessFeatures;
+    LimitedAccessFeatureRequestResult: typeof LimitedAccessFeatureRequestResult;
     
     // Module Properties
     version: string;
