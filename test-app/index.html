@@ -2,55 +2,59 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
-    />
-    <meta
-      http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
-    />
     <title>Windows AI Example</title>
     <style>
-      #myButton {
+      #summarizeButton {
         width: 200px;
         height: 30px;
         border-radius: 8px;
         border: 1px solid;
         cursor: pointer;
       }
-      #generatedText {
+      #textToSummarize,
+      #summarizedText {
         margin-top: 10px;
         padding: 15px;
-        border-radius: 8px;
         background-color: #f9f9f9;
         min-height: 50px;
         white-space: pre-wrap;
+        border-radius: 8px;
       }
     </style>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("myButton").onclick = async function () {
-          const textDisplay = document.getElementById("generatedText");
-          textDisplay.textContent = "Generating text...";
+        document.getElementById("summarizeButton").onclick = async function () {
+          const textDisplay = document.getElementById("summarizedText");
+          const textToSummarize =
+            document.getElementById("textToSummarize").textContent;
 
-          try {
-            const generated = await window.windowsAI.generateText(
-              "Are you there?"
-            );
-            console.log(generated);
-            textDisplay.textContent = generated;
-          } catch (error) {
-            console.error("Error generating text:", error);
-            textDisplay.textContent = "Error generating text: " + error.message;
-          }
+          setTimeout(async () => {
+            try {
+              textDisplay.textContent = "";
+              const generated = await window.windowsAI.summarizeText(
+                textToSummarize,
+                (progress) => {
+                  textDisplay.textContent += progress;
+                }
+              );
+
+              if (generated !== textDisplay.textContent) {
+                textDisplay.textContent = generated;
+              }
+            } catch (error) {
+              console.error("Error summarizing text:", error);
+              textDisplay.textContent =
+                "Error summarizing text: " + error.message;
+            }
+          }, 50);
         };
       });
     </script>
   </head>
   <body>
-    <button id="myButton">Run Prompt: Are you there?</button>
-
-    <div id="generatedText">Phi Silica generated text will appear here...</div>
+    <!-- prettier-ignore -->
+    <div id="textToSummarize">Artificial intelligence (AI) is intelligence demonstrated by machines, in contrast to the natural intelligence displayed by humans and animals. Leading AI textbooks define the field as the study of "intelligent agents": any device that perceives its environment and takes actions that maximize its chance of successfully achieving its goals. Colloquially, the term "artificial intelligence" is often used to describe machines that mimic "cognitive" functions that humans associate with the human mind, such as "learning" and "problem solving".</div>
+    <button id="summarizeButton">Summarize</button>
+    <div id="summarizedText">Summarized text will appear here...</div>
   </body>
 </html>

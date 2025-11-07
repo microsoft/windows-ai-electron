@@ -1,11 +1,11 @@
 const { contextBridge } = require("electron");
 const {
   LanguageModel,
-  AIFeatureReadyState,
+  TextSummarizer,
 } = require("../index.js");
 
 contextBridge.exposeInMainWorld("windowsAI", {
-  summarizeText: async (prompt) => {
+  summarizeText: async (prompt, progressCallback) => {
     try {
         const languageModel = await LanguageModel.CreateAsync();
         const textSummarizer = new TextSummarizer(languageModel);
@@ -15,7 +15,6 @@ contextBridge.exposeInMainWorld("windowsAI", {
         progressResult.progress((sender, progress) => {
           progressCallback(progress);
         });
-
         const result = await progressResult;
 
         return result.Text;
