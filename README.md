@@ -41,7 +41,7 @@ The instructions below follow the steps for adding `winapp-windows-ai` to a stan
 
 The `winapp-windows-ai` package has not been published to npm yet.
 
-To install [download the latest prerelease](https://github.com/microsoft/winapp-windows-ai/releases) from GitHub Releases.
+To install, [download the latest prerelease](https://github.com/microsoft/winapp-windows-ai/releases) from GitHub Releases.
 
 ```bash
 cd <your-electron-app>
@@ -66,7 +66,7 @@ Initialize project with Windows SDK and Windows App SDK:
 yarn winapp init --prerelease
 ```
 
-Edit `winapp.yaml` to use Microsoft.WindowsAppSDK `1.8.250702007-experimental4` (`winapp.yaml` within app must match `winapp-windows-ai`'s `winapp.yaml`)
+Edit `winapp.yaml` to use Microsoft.WindowsAppSDK `1.8.250702007-experimental4` (`winapp.yaml` within app must match `winapp-windows-ai`'s `winapp.yaml`).
 
 Update Windows SDK and Windows App SDK dependencies:
 
@@ -90,7 +90,7 @@ Add `systemAIModels` Capability in `appxmanifest.xml` for app to gain access to 
 </Capabilities>
 ```
 
-Add identity to Electron process (required for many Windows SDK and Windows App SDK API's):
+Add identity to Electron process (required for Windows SDK and Windows App SDK API's):
 
 ```bash
 yarn winapp node add-electron-debug-identity
@@ -125,7 +125,7 @@ contextBridge.exposeInMainWorld("windowsAI", {
 });
 ```
 
-In `main.js` update `webPreferences`:
+In `main.js`, update `webPreferences`:
 
 ```javascript
 const win = new BrowserWindow({
@@ -139,7 +139,7 @@ const win = new BrowserWindow({
   })
 ```
 
-### 7. Add Some UI
+### 7. Add UI
 
 In `index.html`, we'll add a block of text to summarize, a button to trigger our call to `winapp-windows-ai`, and a block for the generated text:
 
@@ -226,7 +226,7 @@ This package supports many of the API's within
 
 - [Microsoft.Windows.AI.Text](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.text?view=windows-app-sdk-1.8)
 - [Microsoft.Windows.AI.Imaging](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.imaging?view=windows-app-sdk-1.8)
-- [Microsoft.Windows.AI](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai?view=windows-app-sdk-1.8) namespaces
+- [Microsoft.Windows.AI](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai?view=windows-app-sdk-1.8)
 
 For the full list of supported API's, see [Supported API's](docs/API-Reference.md).
 
@@ -234,7 +234,7 @@ If you have a request for additional API support, please file an [issue](https:/
 
 ## Usage Examples
 
-For more examples on how to use `winapp-windows-ai` within your Electron application, see the [Usage Guide](docs/Usage.md)
+For more examples on how to use `winapp-windows-ai` within your Electron application, see the [Usage Guide](docs/Usage.md).
 
 ## Development
 
@@ -244,29 +244,27 @@ For more examples on how to use `winapp-windows-ai` within your Electron applica
 winapp-windows-ai/
 ├── winapp-windows-ai/
 │   ├── winapp-windows-ai.cc         # Main addon entry point
-│   ├── LanguageModelProjections.h   # Language model & text summarization API wrappers
+│   ├── LanguageModelProjections.h   # Language model & text skills APIs
 │   ├── LanguageModelProjections.cpp
-│   ├── ImagingProjections.h         # Imaging API wrappers
+│   ├── ImagingProjections.h         # Imaging APIs
 │   ├── ImagingProjections.cpp
-│   ├── ContentSeverity.h            # Content safety API wrappers
+│   ├── ContentSeverity.h            # Content safety APIs
 │   ├── ContentSeverity.cpp
 │   ├── ProjectionHelper.h           # Utility functions
 │   ├── ProjectionHelper.cpp
 │   └── binding.gyp                  # Build configuration
 ├── test-app/                        # Sample Electron application
 │   ├── main.js                      # Electron main process
-│   ├── preload.js                   # Preload script for Windows AI integration
+│   ├── preload.js                   # Preload script for winapp-windows-ai integration
 │   ├── index.html                   # Sample UI for testing APIs
-│   ├── package.json                 # Test app dependencies
-│   └── winapp.yaml                  # Windows App SDK configuration
+│   └── package.json                 # Sample app package configuration and dependencies
 ├── docs/                            # Documentation files
-├── scripts/                         # Build and utility scripts
+├── scripts/                         # Build scripts
 │   ├── build-pkg.ps1                # PowerShell script for package building
 │   └── get-build-number.ps1         # Script to retrieve build numbers
 ├── index.d.ts                       # TypeScript type definitions
 ├── index.js                         # Main module entry point and exports
-├── package.json                     # Package configuration and dependencies
-└── README.md                        # This file
+└── package.json                     # Package configuration and dependencies
 ```
 
 ### Building the Package Locally
@@ -277,11 +275,11 @@ winapp-windows-ai/
 git clone https://github.com/microsoft/winapp-windows-ai.git
 ```
 
-#### 2. Download Windows App CLI Package
+#### 2. Download Windows App Development CLI Package
 
 Check the `@microsoft/winappcli` version required by `winapp-windows-ai` in `package.json`. Then download the matching [release .tgz](https://github.com/microsoft/WinAppCli/releases) from the Assets section.
 
-Move the `.tgz` file to the filepath specified in repo's `package.json` for the `@microsoft/winappcli` package or update `package.json` to the `.tgz` path.
+Move the `.tgz` file to the file path specified in `package.json` or update `package.json` with the correct `.tgz` path.
 
 #### 3. Install Dependencies
 
