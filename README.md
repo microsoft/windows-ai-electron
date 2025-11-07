@@ -2,7 +2,7 @@
   <span>Windows AI Addon for Electron</span>
 </h1>
 <h3 align="center">
-  <span style="color: #0078d4;">Leverage Windows AI capabilities directly from your app's JavaScript</span>
+  <span>Leverage Windows AI capabilities directly from your app's JavaScript</span>
 </h3>
 
 > [!IMPORTANT]  
@@ -19,7 +19,7 @@ The Windows AI Addon for Electron is a Node.js native addon that provides access
 - **Python** 3.x
 - **Yarn** package manager
 
-See [Windows AI API's Dependencies](https://learn.microsoft.com/windows/ai/apis/get-started?tabs=winget%2Cwinui%2Cwinui2#dependencies) for more information on system requirements to run Windows AI API's.
+See [Windows AI API's Dependencies](https://learn.microsoft.com/windows/ai/apis/get-started?tabs=winget%2Cwinui%2Cwinui2#dependencies) for more information on system requirements to run Windows AI API's and scripts to install required prerequisites.
 
 To verify your device is able to access Windows AI models, you can download the [AI Dev Gallery app](https://apps.microsoft.com/detail/9n9pn1mm3bd5?hl=en-US&gl=US) and verify the "AI APIs" samples run on your device.
 
@@ -29,11 +29,13 @@ This package depends on the [@microsoft/winappcli](https://github.com/microsoft/
 
 ## Get Started Using winapp-windows-ai in an Electron App
 
+Let's walk through a simple tutorial of how to get started using `winapp-windows-ai`. In this tutorial, we will create a simple Electron app that summarizes a block of text using Windows AI's Text Summarizer.
+
 ### 1. Create an Electron App
 
 Create an electron app by following the getting started directions at [Electron: Building you First App](https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app).
 
-The instructions below follow the steps for adding `wniapp-windows-ai` to a standard Electron app. This module can also be added to Electron apps built using [Electron Forge](https://www.electronforge.io/) and other templates. The setup steps should be similar, but additional configuration may be required to support using NodeJS addons.
+The instructions below follow the steps for adding `winapp-windows-ai` to a standard Electron app. This module can also be added to Electron apps built using [Electron Forge](https://www.electronforge.io/) and other templates. The setup steps should be similar, but additional configuration may be required to support using NodeJS addons.
 
 ### 2. Add winapp-windows-ai as a Dependency
 
@@ -46,15 +48,11 @@ cd <your-electron-app>
 yarn add <path to tgz>
 ```
 
-### 2. Add winappcli as a Dependency
+### 2. Add @microsoft/winappcli as a Dependency
 
-Since Check which `@microsoft/winappcli` version your `winapp-windows-ai` package depends on in the [Release notes](<(https://github.com/microsoft/winapp-windows-ai/releases)>).
+The `@microsoft/winappcli` package has not been published to npm yet. You can install it from GitHub.
 
-The `@microsoft/winappcli` package has not been published to npm yet.
-
-Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) (can be found within Assets folder of the Release) for that version of `@microsoft/winappcli`.
-
-The `@microsoft/winappcli` package has not been published to npm yet. You can install a copy of the package from GitHub.
+Check the `@microsoft/winappcli` version required by `winapp-windows-ai` in the [Release notes](https://github.com/microsoft/winapp-windows-ai/releases). Then download the matching [release .tgz](https://github.com/microsoft/WinAppCli/releases) from the Assets section.
 
 ```bash
 yarn add <path to tgz>
@@ -62,11 +60,15 @@ yarn add <path to tgz>
 
 ### 4. Install and Setup Dependencies
 
+Initialize project with Windows SDK and Windows App SDK:
+
 ```bash
 yarn winapp init --prerelease
 ```
 
-Edit `winapp.yaml` to use Microsoft.WindowsAppSDK v`1.8.250702007-experimental4`
+Edit `winapp.yaml` to use Microsoft.WindowsAppSDK `1.8.250702007-experimental4` (`winapp.yaml` within app must match `winapp-windows-ai`'s `winapp.yaml`)
+
+Update Windows SDK and Windows App SDK dependencies:
 
 ```bash
 yarn winapp restore
@@ -80,7 +82,7 @@ Disable sandboxing in `main.js` (temporary workaround for Windows bug with spars
 app.commandLine.appendSwitch('--no-sandbox');
 ```
 
-Add `systemAIModels` Capability in `appxmanifest.xml`:
+Add `systemAIModels` Capability in `appxmanifest.xml` for app to gain access to local models:
 
 ```xml
 <Capabilities>
@@ -88,15 +90,15 @@ Add `systemAIModels` Capability in `appxmanifest.xml`:
 </Capabilities>
 ```
 
+Add identity to Electron process (required for many Windows SDK and Windows App SDK API's):
+
 ```bash
 yarn winapp node add-electron-debug-identity
 ```
 
 ### 6. Use winapp-windows-ai
 
-Create a `preload.js` file at the root of your project.
-
-`preload.js`:
+Create a `preload.js` file at the root of your project:
 
 ```javascript
 const { contextBridge } = require("electron");
@@ -123,7 +125,7 @@ contextBridge.exposeInMainWorld("windowsAI", {
 });
 ```
 
-Update `webPreferences` in `main.js`:
+In `main.js` update `webPreferences`:
 
 ```javascript
 const win = new BrowserWindow({
@@ -137,9 +139,9 @@ const win = new BrowserWindow({
   })
 ```
 
-### 7. Create Button to Call API onClick
+### 7. Add Some UI
 
-To your app's `index.html`, add a button control which calls `generateText` and a `generatedText` text block.
+In `index.html`, we'll add a block of text to summarize, a button to trigger our call to `winapp-windows-ai`, and a block for the generated text:
 
 ```html
 <!DOCTYPE html>
@@ -196,8 +198,16 @@ To your app's `index.html`, add a button control which calls `generateText` and 
     </script>
   </head>
   <body>
-    <!-- prettier-ignore -->
-    <div id="textToSummarize">Artificial intelligence (AI) is intelligence demonstrated by machines, in contrast to the natural intelligence displayed by humans and animals. Leading AI textbooks define the field as the study of "intelligent agents": any device that perceives its environment and takes actions that maximize its chance of successfully achieving its goals. Colloquially, the term "artificial intelligence" is often used to describe machines that mimic "cognitive" functions that humans associate with the human mind, such as "learning" and "problem solving".</div>
+    <div id="textToSummarize">
+      Artificial intelligence (AI) is intelligence demonstrated by machines, in
+      contrast to the natural intelligence displayed by humans and animals.
+      Leading AI textbooks define the field as the study of "intelligent
+      agents": any device that perceives its environment and takes actions that
+      maximize its chance of successfully achieving its goals. Colloquially, the
+      term "artificial intelligence" is often used to describe machines that
+      mimic "cognitive" functions that humans associate with the human mind,
+      such as "learning" and "problem solving".
+    </div>
     <button id="summarizeButton">Summarize</button>
     <div id="summarizedText">Summarized text will appear here...</div>
   </body>
@@ -212,7 +222,11 @@ yarn electron .
 
 ## Supported APIs
 
-This package supports many of the API's within the [Microsoft.Windows.AI.Text](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.text?view=windows-app-sdk-1.8), [Microsoft.Windows.AI.Imaging](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.imaging?view=windows-app-sdk-1.8), and [Microsoft.Windows.AI](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai?view=windows-app-sdk-1.8) namespaces.
+This package supports many of the API's within
+
+- [Microsoft.Windows.AI.Text](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.text?view=windows-app-sdk-1.8)
+- [Microsoft.Windows.AI.Imaging](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.imaging?view=windows-app-sdk-1.8)
+- [Microsoft.Windows.AI](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai?view=windows-app-sdk-1.8) namespaces
 
 For the full list of supported API's, see [Supported API's](docs/API-Reference.md).
 
@@ -220,7 +234,7 @@ If you have a request for additional API support, please file an [issue](https:/
 
 ## Usage Examples
 
-For more examples on how to use `winapp-windows-ai` within you Electron application, see the [Usage Guide](docs/Usage.md)
+For more examples on how to use `winapp-windows-ai` within your Electron application, see the [Usage Guide](docs/Usage.md)
 
 ## Development
 
@@ -265,9 +279,7 @@ git clone https://github.com/microsoft/winapp-windows-ai.git
 
 #### 2. Download Windows App CLI Package
 
-This project depends on `@microsoft/winappcli`. The `@microsoft/winappcli` package has not been published to npm yet. You can install a copy of the package from GitHub.
-
-Check `winapp-windows-ai`'s `package.json` for its `@microsoft/winappcli` package dependency. Then download the [release .tgz](https://github.com/microsoft/WinAppCli/releases) for that `@microsoft/winappcli` version (can be found within Assets folder of the Release).
+Check the `@microsoft/winappcli` version required by `winapp-windows-ai` in `package.json`. Then download the matching [release .tgz](https://github.com/microsoft/WinAppCli/releases) from the Assets section.
 
 Move the `.tgz` file to the filepath specified in repo's `package.json` for the `@microsoft/winappcli` package or update `package.json` to the `.tgz` path.
 
@@ -293,7 +305,7 @@ Complete [Building the Package Locally](#1-build-package-locally) steps above.
 
 #### 2. Setup Dependencies
 
-If `@microsoft/winappcli` package is installed at a different location than specified in `test-app`'s `package.json`, update the `test-app/package.json` entry.
+If `@microsoft/winappcli` package is installed at a different location than specified in `test-app/package.json`, update the `test-app/package.json` entry.
 
 ```bash
 yarn install
@@ -311,15 +323,15 @@ If you make changes to the `winapp-windows-ai` package and want to see your chan
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](/LICENSE) for details.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **"AI not ready" errors**: Ensure Windows 11 25H2+ (Windows Insider Preview) and Copilot+ PC requirements are met (see [Prerequisites](#prerequisites))
-2. **EnsureReadyAsync cancelled or failed**: Ensure `appxmanifest` has the `systemAIModels` capability has been added (see [Add Debug Identity + Capabilities to App](#5-add-debug-identity--capabilities-to-app))
-3. **Class Not Registered**:
+1. **"AI not ready"**: Ensure Windows 11 25H2+ (Windows Insider Preview) and Copilot+ PC requirements are met (see [Prerequisites](#prerequisites))
+2. **EnsureReadyAsync cancelled or failed**: Ensure `appxmanifest` has the `systemAIModels` capability added (see [Add Debug Identity + Capabilities to App](#5-add-debug-identity--capabilities-to-app))
+3. **"Class Not Registered"**:
 
    1. Make sure `@microsoft/winappcli` package was setup correctly.
    2. Ensure `winapp.yaml` file in app exactly matches the `winapp.yaml` file in `winapp-windows-ai`.
@@ -332,10 +344,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
       5. Run `yarn winapp node add-electron-debug-identity`
 
 4. **App renders blank**: Make sure to disable sandboxing when running your Electron app on Windows, then re-run `yarn winapp node add-electron-debug-identity` (see [Add Debug Identity + Capabilities to App](#5-add-debug-identity--capabilities-to-app))
-5. **"Can't find module: winapp-windows-ai" errors**: Make sure sandboxing has been disabled in `webPreferences` (see [Use winapp-windows-ai](#6-use-winapp-windows-ai))
-6. **"<function-name>" function doesn't exist" errors**: Make sure `preload.js` file has been created. Add `preload.js` to `webPreferences` with the correct absolute path (see [Use winapp-windows-ai](#6-use-winapp-windows-ai)). Path may vary depending on Electron template being used.
+5. **"Can't find module: winapp-windows-ai"**: Make sure sandboxing has been disabled in `webPreferences` (see [Use winapp-windows-ai](#6-use-winapp-windows-ai))
+6. **"'functionName' doesn't exist"**: Make sure `preload.js` file has been created. Add `preload.js` to `webPreferences` with the correct absolute path (see [Use winapp-windows-ai](#6-use-winapp-windows-ai)). Path may vary depending on Electron template being used.
 7. **Image file not found**: You must use absolute file paths with proper Windows path separators.
 8. **Content moderation blocks**: Adjust `ContentFilterOptions` severity levels as appropriate.
 9. **Memory issues**: Always call `Close()` or `Dispose()` methods to clean up resources.
-10. Make your `winapp.yaml` file within your app exactly matches the `winapp.yaml` file within your copy of `winapp-windows-ai`. The versions must be the same. Re-run `yarn winapp restore` and `yarn winapp node add-electron-debug-identity` after any edits to `winapp.yaml`.
-11. See [Windows AI API's Troubleshooting](https://learn.microsoft.com/windows/ai/apis/troubleshooting) for more information on troubleshooting the native Windows AI API's.
+10. See [Windows AI API's Troubleshooting](https://learn.microsoft.com/windows/ai/apis/troubleshooting) for more information on troubleshooting the native Windows AI API's.
