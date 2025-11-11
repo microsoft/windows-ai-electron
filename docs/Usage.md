@@ -1,6 +1,6 @@
 ## Usage Examples
 
-Below are a few usage examples of the APIs in this module. For more samples on how to use the `winapp-windows-ai`, see https://github.com/microsoft/electron-gallery. For more samples on how to use Windows AI Foundry, see https://github.com/microsoft/ai-dev-Gallery.
+Below are a few usage examples of the APIs in this module. For more samples on how to use the `winapp-windows-ai`, see [Electron Gallery](https://github.com/microsoft/electron-gallery). For more samples on how to use Windows AI Foundry, see [AI Dev Gallery](https://github.com/microsoft/ai-dev-Gallery).
 
 ### Basic Language Model Usage
 
