@@ -89,7 +89,7 @@ jobs:
             Version: `${{ steps.build.outputs.version }}`
             Base Version: `${{ steps.build.outputs.base_version }}`
             Build Number: `${{ steps.build.outputs.build_number }}`
-            Windows App SDK Version: `${{ steps.build.outputs.winapp_version }}`
+            Windows App CLI Version: `${{ steps.build.outputs.winapp_version }}`
             Commit: `${{ github.sha }}`
 
 
