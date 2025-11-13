@@ -34,7 +34,7 @@ function Download-WinAppCliTarball {
     
     # Extract version from package.json
     $PackageJson = Get-Content "package.json" | ConvertFrom-Json
-    $WinAppCliDep = $PackageJson.dependencies.'@microsoft/winappcli'
+    $WinAppCliDep = $PackageJson.devDependencies.'@microsoft/winappcli'
     if ($WinAppCliDep -match "microsoft-winappcli-(.+)\.tgz") {
         $Version = $matches[1]
         Write-Host "[WINAPPCLI] Detected version from package.json: $Version" -ForegroundColor Cyan
