@@ -1,0 +1,56 @@
+name: Bug report
+description: File a bug report
+title: Describe the problem
+labels: [bug]
+type: 'Bug'
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for reporting bugs found in winapp-windows-ai.
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Problem Description
+      description: |
+        Please enter a description of the issue and any output and/or error logging.
+    id: description
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Steps To Reproduce
+      description: Provide a detailed list of steps that reproduce the issue.
+      placeholder: |
+        1.
+        2.
+    id: steps
+  - type: textarea
+    attributes:
+      label: Expected Results
+      description: Describe what you expected to happen.
+    id: expected
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Package Version
+      description: |
+        Please list the version of the @microsoft/winapp-windows-ai package you are using.
+      placeholder: "0.1.1"
+    id: package_version
+  - type: dropdown
+    attributes:
+      label: Target Platform Version
+      description: What Windows SDK version are you building for?
+      options:
+        - "<= 10.0.17763"
+        - "10.0.17763"
+        - "10.0.18362"
+        - "10.0.19041"
+        - "10.0.22000"
+        - "10.0.22621"
+        - "10.0.26100"
+        - ">= 10.0.26100"
+    id: sdk
