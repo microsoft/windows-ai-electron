@@ -93,7 +93,7 @@ yarn winapp node add-electron-debug-identity
 ```
 
 > [!IMPORTANT]
-> There is a known issue with sparse packaging Electron applications which causes the app to crash on start or not render the web content. The issue has been fixed in Windows but it has not propagated to external Windows devices yet. If you are seeing this issue after calling `add-electron-debug-identity`, you can disable sandboxing in your Electron app for debug purposes with the `--no-sandbox` flag. This issue does not affect full MSIX packaging.
+> There is a known issue with sparse packaging Electron applications which causes the app to crash on start or not render the web content. The issue has been fixed in Windows but it has not propagated to external Windows devices yet. If you are seeing this issue after calling `add-electron-debug-identity`, you can [disable sandboxing in your Electron app](https://www.electronjs.org/docs/latest/tutorial/sandbox#disabling-chromiums-sandbox-testing-only) for debug purposes with the `--no-sandbox` flag. This issue does not affect full MSIX packaging.
 
 `package.json`:
 ```javacript
