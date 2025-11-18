@@ -1,4 +1,5 @@
 #include "ImagingProjections.h"
+#include "LanguageModelProjections.h"
 #include "ProjectionHelper.h"
 #include "ContentSeverity.h"
 #include <shobjidl_core.h>
@@ -213,10 +214,9 @@ Napi::Value MyImageDescriptionGenerator::MyEnsureReadyAsync(const Napi::Callback
                 try {
                     if (status == winrt::Windows::Foundation::AsyncStatus::Completed) {
                         auto result = sender.GetResults();
-                        // Note: Using the same AIFeatureReadyResult as in LanguageModel
                         auto external = Napi::External<AIFeatureReadyResult>::New(env, &result);
-                        // We'll need to import MyAIFeatureReadyResult constructor from LanguageModelProjections
-                        deferred.Resolve(env.Null()); // Simplified for now
+                        auto resultWrapper = MyAIFeatureReadyResult::constructor.New({ external });
+                        deferred.Resolve(resultWrapper);
                     } else {
                         deferred.Reject(Napi::Error::New(env, "EnsureReadyAsync was cancelled or failed.").Value());
                     }
@@ -499,8 +499,9 @@ Napi::Value MyTextRecognizer::MyEnsureReadyAsync(const Napi::CallbackInfo& info)
                 try {
                     if (status == winrt::Windows::Foundation::AsyncStatus::Completed) {
                         auto result = sender.GetResults();
-                        // Note: Using the same AIFeatureReadyResult as in LanguageModel
-                        deferred.Resolve(env.Null()); // Simplified for now
+                        auto external = Napi::External<AIFeatureReadyResult>::New(env, &result);
+                        auto resultWrapper = MyAIFeatureReadyResult::constructor.New({ external });
+                        deferred.Resolve(resultWrapper);
                     } else {
                         deferred.Reject(Napi::Error::New(env, "EnsureReadyAsync was cancelled or failed.").Value());
                     }
