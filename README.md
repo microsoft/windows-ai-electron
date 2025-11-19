@@ -54,7 +54,7 @@ npm i <path to tgz>
 
 The `@microsoft/winappcli` package has not been published to npm yet. You can install it from GitHub.
 
-Check the `@microsoft/winappcli` version required by `@microsoft/winapp-windows-ai` in the [Release notes](https://github.com/microsoft/winapp-windows-ai/releases). Then download the matching [release .tgz](https://github.com/microsoft/WinAppCli/releases) from the Assets section.
+To install, [download the latest release](https://github.com/microsoft/WinAppCli/releases) from GitHub Releases.
 
 ```bash
 npm i <path to tgz>
@@ -68,7 +68,7 @@ Initialize project with Windows SDK and Windows App SDK:
 npx winapp init
 ```
 > [!IMPORTANT]
-> Edit `winapp.yaml` to use Microsoft.WindowsAppSDK `1.8.251003001` (`winapp.yaml` within app must match `@microsoft/winapp-windows-ai`'s `winapp.yaml`).
+> Edit `winapp.yaml` to use Microsoft.WindowsAppSDK `1.8.251106002` (`winapp.yaml` in the app can specify a different WinAppSDK version, provided it matches the same minor version (e.g., v1.8.x) as `@microsoft/winapp-windows-ai`’s `winapp.yaml`).
 
 Update Windows SDK and Windows App SDK dependencies:
 
@@ -217,7 +217,9 @@ git clone https://github.com/microsoft/winapp-windows-ai.git
 
 #### 2. Download Windows App Development CLI Package
 
-Check the `@microsoft/winappcli` version required by `@microsoft/winapp-windows-ai` in `package.json`. Then download the matching [release .tgz](https://github.com/microsoft/WinAppCli/releases) from the Assets section.
+The `@microsoft/winappcli` package has not been published to npm yet. You can install it from GitHub.
+
+To install, [download the latest release](https://github.com/microsoft/WinAppCli/releases) from GitHub Releases.
 
 Move the `.tgz` file to the file path specified in `package.json` or update `package.json` with the correct `.tgz` path.
 
