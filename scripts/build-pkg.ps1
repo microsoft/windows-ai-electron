@@ -24,66 +24,6 @@ param(
     [switch]$SkipDependencies
 )
 
-# Constants
-$WinAppCliRepo = "microsoft/WinAppCli"
-
-function Download-WinAppCliTarball {
-    param(
-        [string]$DestinationPath
-    )
-    
-    # Extract version from package.json
-    $PackageJson = Get-Content "package.json" | ConvertFrom-Json
-    $WinAppCliDep = $PackageJson.devDependencies.'@microsoft/winappcli'
-    if ($WinAppCliDep -match "microsoft-winappcli-(.+)\.tgz") {
-        $Version = $matches[1]
-        Write-Host "[WINAPPCLI] Detected version from package.json: $Version" -ForegroundColor Cyan
-    } else {
-        Write-Error "Could not detect winappcli version from package.json. Check that @microsoft/winappcli dependency is properly specified."
-        exit 1
-    }
-
-    $TarballName = "microsoft-winappcli-$Version.tgz"
-    $FullDestPath = Join-Path $DestinationPath $TarballName
-    
-    # Create destination directory if it doesn't exist
-    $DestDir = Split-Path $FullDestPath -Parent
-    if (-not (Test-Path $DestDir)) {
-        New-Item -ItemType Directory -Path $DestDir -Force | Out-Null
-    }
-    
-    # Skip download if file already exists
-    if (Test-Path $FullDestPath) {
-        Write-Host "[WINAPPCLI] Tarball already exists: $FullDestPath" -ForegroundColor Green
-        return
-    }
-
-    Write-Host "[WINAPPCLI] Downloading $TarballName from $WinAppCliRepo..." -ForegroundColor Blue
-
-    try {
-        # Use GitHub CLI for download (requires gh to be installed and authenticated)
-        if (-not (Get-Command "gh" -ErrorAction SilentlyContinue)) {
-            Write-Error "GitHub CLI (gh) is required but not found. Please install it: https://cli.github.com/"
-            exit 1
-        }
-
-        Write-Host "[WINAPPCLI] Using GitHub CLI for download..." -ForegroundColor Gray
-        & gh release download "v$Version" --repo $WinAppCliRepo --pattern $TarballName --dir (Split-Path $FullDestPath -Parent)
-
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "[WINAPPCLI] Successfully downloaded via GitHub CLI" -ForegroundColor Green
-        } else {
-            Write-Error "GitHub CLI download failed. Make sure you're authenticated: gh auth login"
-            exit 1
-        }
-        
-    } catch {
-        Write-Error "Failed to download winappcli tarball: $($_.Exception.Message)"
-        Write-Host "[WINAPPCLI] Make sure you have access to the private repository and are authenticated with GitHub CLI" -ForegroundColor Yellow
-        Write-Host "[WINAPPCLI] Run: gh auth login" -ForegroundColor Yellow
-        exit 1
-    }
-}
 
 # Ensure we're running from the project root
 $ProjectRoot = $PSScriptRoot | Split-Path -Parent
@@ -102,11 +42,7 @@ try
     if (-not $SkipDependencies) {
         Write-Host "[SETUP] Setting up dependencies..." -ForegroundColor Blue
         
-        # Download winappcli tarball if needed
-        Write-Host "[SETUP] Ensuring winappcli tarball is available..." -ForegroundColor Blue
-        Download-WinAppCliTarball -DestinationPath "../winappcli/artifacts"
-        
-        # Install npm dependencies
+        # Install npm dependencies (includes @microsoft/winappcli from npm)
         Write-Host "[SETUP] Installing npm dependencies..." -ForegroundColor Blue
         npm install
         if ($LASTEXITCODE -ne 0) {
