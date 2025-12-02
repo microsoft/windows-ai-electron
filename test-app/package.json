@@ -6,12 +6,12 @@
   "scripts": {
     "start": "electron --no-sandbox .",
     "setup-debug": "npx winapp node add-electron-debug-identity",
-    "postinstall": "npx winapp init && npx setup-debug"
+    "postinstall": "npx winapp init && npm run setup-debug"
   },
   "devDependencies": {
     "electron": "^39.0.0"
   },
   "dependencies": {
-    "@microsoft/winappcli": "..\\..\\winappcli\\artifacts\\microsoft-winappcli-0.1.1.tgz"
+    "@microsoft/winappcli": "^0.1.7"
   }
 }

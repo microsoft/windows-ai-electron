@@ -239,7 +239,7 @@ Install dependencies:
 npm install
 ```
 
-Initialize Windows App Development CLI (select Y to preserve dependency versions):
+Initialize Windows App Development CLI (select N to preserve dependency versions):
 ```bash
 npx winapp init
 npm run setup-debug
