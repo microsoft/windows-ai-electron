@@ -31,9 +31,7 @@ jobs:
       - name: Build, test, and package
         id: build
         run: |
-          .\scripts\build-pkg.ps1
-
-          # Get version information for release tagging
+          # Get version information
           $packageJson = Get-Content "package.json" | ConvertFrom-Json
           $baseVersion = $packageJson.version
           $buildNumber = & ".\scripts\get-build-number.ps1"
@@ -53,6 +51,9 @@ jobs:
           echo "base_version=$baseVersion" >> $env:GITHUB_OUTPUT
           echo "build_number=$buildNumber" >> $env:GITHUB_OUTPUT
           echo "winapp_version=$winappVersion" >> $env:GITHUB_OUTPUT
+
+          # Now run the build script (it will use the same build number)
+          .\scripts\build-pkg.ps1
 
       # Upload all build artifacts
       - name: Upload npm package

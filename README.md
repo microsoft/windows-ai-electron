@@ -110,7 +110,8 @@ const {
   TextSummarizer,
   LanguageModelResponseStatus,
 } = require("@microsoft/winapp-windows-ai");
-...
+
+const summarizeText = async () => {
   try {
     const readyResult = await LanguageModel.EnsureReadyAsync();
     if (readyResult.Status !== AIFeatureReadyResultState.Success) {
@@ -146,7 +147,29 @@ const {
   } catch (error) {
     console.error("Error:", error);
   }
-...
+}
+```
+
+Call `summarizeText` somewhere in your `main.js` or `index.js`:
+Here's an example:
+```diff
+const createWindow = () => {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: __dirname + '/preload.js',
+      sandbox: false,
+    }
+  })
+
+  win.loadFile('index.html')
+
+  win.webContents.openDevTools();
+
++  summarizeText();
+}
 ```
 
 ### 7. Run Your App
