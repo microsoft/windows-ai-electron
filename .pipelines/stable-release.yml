@@ -44,9 +44,6 @@ extends:
           image: windows-latest
           os: windows
           hostArchitecture: amd64
-        templateContext:
-          type: releaseJob
-          isProduction: true
         steps:
           - checkout: self
             fetchDepth: 0  # Required for tag enumeration
