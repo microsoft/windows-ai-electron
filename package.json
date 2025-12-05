@@ -1,37 +1,39 @@
 {
-  "name": "@microsoft/winapp-windows-ai",
-  "version": "0.1.5",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "os": [
-    "win32"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build-winapp-windows-ai-arm64": "cd winapp-windows-ai && prebuildify --arch arm64 --strip && cd ..",
-    "build-winapp-windows-ai-x64": "cd winapp-windows-ai && prebuildify --arch x64 --strip && cd ..",
-    "build-all": "npm run build-winapp-windows-ai-arm64 && npm run build-winapp-windows-ai-x64",
-    "clean": "node -e \"require('fs').rmSync('bin', {recursive: true, force: true})\""
-  },
-  "keywords": [],
-  "license": "MIT",
-  "description": "Electron addon which creates JavaScript projections for the native Windows AI APIs.",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:microsoft/winapp-windows-ai.git"
-  },
-  "devDependencies": {
-    "@microsoft/winappcli": "^0.1.7",
-    "nan": "^2.23.0",
-    "node-addon-api": "^8.5.0",
-    "node-gyp": "^11.4.2",
-    "node-gyp-build": "^4.8.4",
-    "prebuildify": "^6.0.1"
-  },
-  "files": [
-    "/winapp-windows-ai",
-    "/LICENSE",
-    "/index.js",
-    "/index.d.ts"
-  ]
+    "name":  "@microsoft/winapp-windows-ai",
+    "version":  "0.1",
+    "main":  "index.js",
+    "types":  "index.d.ts",
+    "os":  [
+               "win32"
+           ],
+    "scripts":  {
+                    "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1",
+                    "build-winapp-windows-ai-arm64":  "cd winapp-windows-ai \u0026\u0026 prebuildify --arch arm64 --strip \u0026\u0026 cd ..",
+                    "build-winapp-windows-ai-x64":  "cd winapp-windows-ai \u0026\u0026 prebuildify --arch x64 --strip \u0026\u0026 cd ..",
+                    "build-all":  "npm run build-winapp-windows-ai-arm64 \u0026\u0026 npm run build-winapp-windows-ai-x64",
+                    "clean":  "node -e \"require(\u0027fs\u0027).rmSync(\u0027bin\u0027, {recursive: true, force: true})\""
+                },
+    "keywords":  [
+
+                 ],
+    "license":  "MIT",
+    "description":  "Electron addon which creates JavaScript projections for the native Windows AI APIs.",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git@github.com:microsoft/winapp-windows-ai.git"
+                   },
+    "devDependencies":  {
+                            "@microsoft/winappcli":  "^0.1.7",
+                            "nan":  "^2.23.0",
+                            "node-addon-api":  "^8.5.0",
+                            "node-gyp":  "^11.4.2",
+                            "node-gyp-build":  "^4.8.4",
+                            "prebuildify":  "^6.0.1"
+                        },
+    "files":  [
+                  "/winapp-windows-ai",
+                  "/LICENSE",
+                  "/index.js",
+                  "/index.d.ts"
+              ]
 }
