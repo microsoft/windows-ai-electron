@@ -1,0 +1,214 @@
+trigger:
+  branches:
+    include:
+      - v0.*-stable
+
+pr: none
+
+resources:
+  repositories:
+  - repository: 1esPipelines
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+parameters:
+  - name: DoEsrp
+    displayName: Sign and release the package (DoEsrp)
+    type: boolean
+    default: true
+  - name: signingIdentity
+    type: object
+    default:
+      serviceName: $(SigningServiceName)
+      appId: $(SigningAppId)
+      tenantId: $(SigningTenantId)
+      akvName: $(SigningAKVName)
+      authCertName: $(SigningAuthCertName)
+      signCertName: $(SigningSignCertName)
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
+  parameters:
+    sdl:
+      sourceAnalysisPool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        image: windows-latest
+        os: windows
+    stages:
+    - stage: Build
+      jobs:
+      - job: Build
+        pool:
+          name: Azure-Pipelines-1ESPT-ExDShared
+          image: windows-latest
+          os: windows
+          hostArchitecture: amd64
+        steps:
+          - checkout: self
+            fetchDepth: 0  # Required for tag enumeration
+          
+          - ${{ if eq(parameters.DoEsrp, 'true') }}:
+            - task: UseDotNet@2
+              displayName: Setup .NET 6.0 (For ESRP Task)
+              inputs:
+                packageType: runtime
+                version: 6.0.x
+          
+          - task: NodeTool@0
+            displayName: Setup Node.js 24
+            inputs:
+              versionSpec: '24.x'
+          
+          - task: PowerShell@2
+            name: SetMeta
+            displayName: Calculate version and export metadata
+            inputs:
+              targetType: inline
+              script: |
+                # Get stable version info
+                $packageJson = Get-Content "package.json" | ConvertFrom-Json
+                $baseVersion = $packageJson.version
+                $stableVersion = & ".\scripts\get-stable-version.ps1"
+                
+                Write-Host "Base version: $baseVersion"
+                Write-Host "Stable version: $stableVersion"
+                
+                # Extract winapp version from package.json dependencies
+                $winappVersion = $packageJson.devDependencies.'@microsoft/winappcli'
+                if ($winappVersion) {
+                  # Remove any npm semver prefix (^, ~, etc.)
+                  $winappVersion = $winappVersion -replace '[\^~]', ''
+                } else {
+                  $winappVersion = "Unknown"
+                }
+                
+                # Export for use in subsequent steps
+                echo "##vso[task.setvariable variable=version;isOutput=true]$stableVersion"
+                echo "##vso[task.setvariable variable=base_version;isOutput=true]$baseVersion"
+                echo "##vso[task.setvariable variable=winapp_version;isOutput=true]$winappVersion"
+          
+          - task: PowerShell@2
+            displayName: Build package
+            inputs:
+              filePath: 'scripts/build-pkg.ps1'
+              arguments: ''
+          
+          - task: 1ES.PublishPipelineArtifact@1
+            displayName: Upload npm package
+            inputs:
+              targetPath: artifacts
+              artifactName: npm-package
+    
+    - stage: Release_GitHub
+      displayName: Create GitHub Release
+      dependsOn: Build
+      variables:
+        version: $[ stageDependencies.Build.Build.outputs['SetMeta.version'] ]
+        base_version: $[ stageDependencies.Build.Build.outputs['SetMeta.base_version'] ]
+        winapp_version: $[ stageDependencies.Build.Build.outputs['SetMeta.winapp_version'] ]
+      jobs:
+      - job: create_github_release
+        pool:
+          name: Azure-Pipelines-1ESPT-ExDShared
+          image: windows-latest
+          os: windows
+          hostArchitecture: amd64
+        displayName: GitHub Stable Release
+        templateContext:
+          type: releaseJob
+          isProduction: true
+          inputs:
+          - input: pipelineArtifact
+            artifactName: npm-package
+            targetPath: $(Pipeline.Workspace)/npm-package
+        steps:
+          - task: GitHubRelease@1
+            displayName: Create GitHub Release
+            inputs:
+              gitHubConnection: 'GitHub-winapp-windows-ai'  # Update with your service connection name
+              repositoryName: 'microsoft/winapp-windows-ai'
+              action: 'create'
+              target: '$(Build.SourceVersion)'
+              tagSource: 'userSpecifiedTag'
+              tag: 'v$(version)'
+              title: 'v$(version)'
+              releaseNotesSource: 'inline'
+              releaseNotesInline: |
+                ## 🎉 Stable Release v$(version)
+                
+                **Version Information:**
+                - Version: `$(version)`
+                - Base Version: `$(base_version)`
+                - Windows App CLI Version: `$(winapp_version)`
+                - Commit: `$(Build.SourceVersion)`
+                
+                ## Installation
+                
+                Download the npm package and install:
+                ```bash
+                npm install microsoft-winapp-windows-ai-$(version).tgz
+                ```
+                
+                ## What's Included
+                
+                - ✅ NPM package for Electron integration
+                - ✅ Prebuilt native addons (x64 and ARM64)
+                - ✅ TypeScript type definitions
+                
+                For usage instructions, see the [README](https://github.com/microsoft/winapp-windows-ai#readme).
+              assets: '$(Pipeline.Workspace)/npm-package/*.tgz'
+              isDraft: false
+              isPreRelease: false
+              addChangeLog: true
+    
+    - ${{ if eq(parameters.DoEsrp, 'true') }}:
+      - stage: Release_Npm
+        displayName: Publish to NPM
+        dependsOn: Release_GitHub
+        variables:
+          version: $[ stageDependencies.Build.Build.outputs['SetMeta.version'] ]
+        jobs:
+        - job: publish_npm
+          pool:
+            name: Azure-Pipelines-1ESPT-ExDShared
+            image: windows-latest
+            os: windows
+            hostArchitecture: amd64
+          displayName: NPM Publish
+          templateContext:
+            type: releaseJob
+            isProduction: true
+            inputs:
+            - input: pipelineArtifact
+              artifactName: npm-package
+              targetPath: $(Pipeline.Workspace)/npm-package
+          steps:
+            - task: PowerShell@2
+              displayName: Verify service connection
+              inputs:
+                targetType: inline
+                script: |
+                  Write-Host "Service Name: ${{ parameters.signingIdentity.serviceName }}"
+            
+            # TODO: Uncomment when ready to publish to NPM
+            # - task: EsrpRelease@10
+            #   condition: always()
+            #   displayName: Publish to NPM via ESRP
+            #   inputs:
+            #     ConnectedServiceName: ${{ parameters.signingIdentity.serviceName }}
+            #     usemanagedidentity: false
+            #     keyvaultname: ${{ parameters.signingIdentity.akvName }}
+            #     authcertname: ${{ parameters.signingIdentity.authCertName }}
+            #     signcertname: ${{ parameters.signingIdentity.signCertName }}
+            #     clientid: ${{ parameters.signingIdentity.appId }}
+            #     intent: 'PackageDistribution'
+            #     contenttype: 'npm'
+            #     contentsource: 'Folder'
+            #     folderlocation: $(Pipeline.Workspace)/npm-package/
+            #     waitforreleasecompletion: true
+            #     owners: '$(EsrpOwnersEmail)'
+            #     approvers: '$(EsrpApproversEmail)'
+            #     serviceendpointurl: 'https://api.esrp.microsoft.com'
+            #     mainpublisher: 'ESRPRELPACMAN'
+            #     domaintenantid: ${{ parameters.signingIdentity.tenantId }}
