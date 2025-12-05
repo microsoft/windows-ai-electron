@@ -60,11 +60,6 @@ extends:
             inputs:
               versionSpec: '24.x'
           
-          - task: npmAuthenticate@0
-            displayName: Authenticate npm with public registry
-            inputs:
-              workingFile: .npmrc
-          
           - task: PowerShell@2
             displayName: Verify Node.js and npm versions
             inputs:
@@ -72,6 +67,12 @@ extends:
               script: |
                 Write-Host "Node.js version: $(node --version)"
                 Write-Host "npm version: $(npm --version)"
+          
+          - task: Npm@1
+            displayName: Install npm dependencies
+            inputs:
+              command: 'install'
+              workingDir: '$(Build.SourcesDirectory)'
           
           - task: PowerShell@2
             name: SetMeta
@@ -105,7 +106,7 @@ extends:
             displayName: Build package
             inputs:
               filePath: 'scripts/build-pkg.ps1'
-              arguments: ''
+              arguments: '-SkipDependencies'
           
           - task: 1ES.PublishPipelineArtifact@1
             displayName: Upload npm package
