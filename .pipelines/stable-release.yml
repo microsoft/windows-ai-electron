@@ -60,16 +60,18 @@ extends:
             inputs:
               versionSpec: '24.x'
           
+          - task: npmAuthenticate@0
+            displayName: Authenticate npm with public registry
+            inputs:
+              workingFile: .npmrc
+          
           - task: PowerShell@2
             displayName: Verify Node.js and npm versions
             inputs:
               targetType: inline
               script: |
-                Write-Host "Node.js version:"
-                node --version
-                Write-Host "npm version:"
-                npm --version
-                Write-Host "PATH: $env:PATH"
+                Write-Host "Node.js version: $(node --version)"
+                Write-Host "npm version: $(npm --version)"
           
           - task: PowerShell@2
             name: SetMeta
