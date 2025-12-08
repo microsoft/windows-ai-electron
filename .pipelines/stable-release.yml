@@ -71,9 +71,30 @@ extends:
                 Write-Host "Created .npmrc for Azure Artifacts feed"
           
           - task: npmAuthenticate@0
-            displayName: Authenticate with Azure Artifacts feed
+            displayName: Authenticate with Azure Artifacts feed (npm)
             inputs:
               workingFile: '.npmrc'
+          
+          - task: PowerShell@2
+            displayName: Create temporary nuget.config
+            inputs:
+              targetType: inline
+              script: |
+                # Create nuget.config pointing to Azure Artifacts feed
+                $nugetConfig = @"
+                <?xml version="1.0" encoding="utf-8"?>
+                <configuration>
+                  <packageSources>
+                    <clear />
+                    <add key="winapp-windows-ai-feed" value="https://pkgs.dev.azure.com/microsoft/pde-oss/_packaging/winapp-windows-ai-npm-feed/nuget/v3/index.json" />
+                  </packageSources>
+                </configuration>
+                "@
+                Set-Content -Path "nuget.config" -Value $nugetConfig
+                Write-Host "Created nuget.config for Azure Artifacts feed"
+          
+          - task: NuGetAuthenticate@1
+            displayName: Authenticate with Azure Artifacts feed (NuGet)
           
           - task: PowerShell@2
             name: SetMeta
