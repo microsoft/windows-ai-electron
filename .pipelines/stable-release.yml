@@ -97,39 +97,39 @@ extends:
             displayName: Authenticate with Azure Artifacts feed (NuGet)
           
           - task: PowerShell@2
-            displayName: Test NuGet configuration and access
+            displayName: Configure winappcli to use Azure Artifacts feed
             inputs:
               targetType: inline
               script: |
-                Write-Host "=== NuGet Configuration Check ==="
+                Write-Host "=== Configuring winappcli NuGet feed ==="
                 
-                # Check if nuget.config exists
-                if (Test-Path "nuget.config") {
-                  Write-Host "Found nuget.config in working directory:"
-                  Get-Content "nuget.config"
+                # Get the winapp path
+                Write-Host "Getting winapp path..."
+                $winappOutput = npx winapp get-winapp-path
+                
+                # Extract the path from the output (last line)
+                $winappPath = ($winappOutput -split "`n" | Select-Object -Last 1).Trim()
+                Write-Host "Winapp path: $winappPath"
+                
+                # Create packages directory
+                $packagesDir = Join-Path $winappPath "packages"
+                Write-Host "Creating packages directory: $packagesDir"
+                New-Item -ItemType Directory -Path $packagesDir -Force | Out-Null
+                
+                # Copy nuget.config to packages directory
+                $nugetConfigSource = "nuget.config"
+                $nugetConfigDest = Join-Path $packagesDir "nuget.config"
+                Write-Host "Copying nuget.config to: $nugetConfigDest"
+                Copy-Item $nugetConfigSource $nugetConfigDest -Force
+                
+                # Verify the file was copied
+                if (Test-Path $nugetConfigDest) {
+                  Write-Host "✓ Successfully configured nuget.config for winappcli" -ForegroundColor Green
+                  Write-Host "Contents:"
+                  Get-Content $nugetConfigDest
                 } else {
-                  Write-Host "No nuget.config found in working directory"
-                }
-                
-                Write-Host "`n=== NuGet Sources ==="
-                & nuget sources
-                
-                Write-Host "`n=== Test Package Install ==="
-                Write-Host "Testing NuGet access by attempting to install Microsoft.Windows.CppWinRT..."
-                
-                # Create a temporary directory for the test
-                $testDir = "nuget_test_temp"
-                New-Item -ItemType Directory -Path $testDir -Force | Out-Null
-                
-                # Try to install a package from the feed
-                & nuget install Microsoft.Windows.CppWinRT -Version 2.0.250303.1 -OutputDirectory $testDir -NonInteractive
-                
-                if ($LASTEXITCODE -eq 0) {
-                  Write-Host "✓ Successfully installed test package from NuGet feed" -ForegroundColor Green
-                  Remove-Item $testDir -Recurse -Force
-                } else {
-                  Write-Warning "✗ Failed to install test package. This may indicate a feed configuration issue."
-                  Write-Host "Exit code: $LASTEXITCODE"
+                  Write-Error "Failed to copy nuget.config to packages directory"
+                  exit 1
                 }
           
           - task: PowerShell@2
