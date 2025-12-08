@@ -97,6 +97,19 @@ extends:
             displayName: Authenticate with Azure Artifacts feed (NuGet)
           
           - task: PowerShell@2
+            displayName: Install npm dependencies
+            inputs:
+              targetType: inline
+              script: |
+                Write-Host "Installing npm dependencies..."
+                npm install
+                if ($LASTEXITCODE -ne 0) {
+                  Write-Error "Failed to install npm dependencies"
+                  exit 1
+                }
+                Write-Host "✓ npm dependencies installed successfully" -ForegroundColor Green
+          
+          - task: PowerShell@2
             displayName: Configure winappcli to use Azure Artifacts feed
             inputs:
               targetType: inline
@@ -131,6 +144,15 @@ extends:
                   Write-Error "Failed to copy nuget.config to packages directory"
                   exit 1
                 }
+                
+                # Run winapp restore to install packages using the Azure Artifacts feed
+                Write-Host "`n=== Running winapp restore ==="
+                npx winapp restore
+                if ($LASTEXITCODE -ne 0) {
+                  Write-Error "Failed to restore winapp packages"
+                  exit 1
+                }
+                Write-Host "✓ winapp packages restored successfully" -ForegroundColor Green
           
           - task: PowerShell@2
             name: SetMeta
@@ -164,7 +186,7 @@ extends:
             displayName: Build package
             inputs:
               filePath: 'scripts/build-pkg.ps1'
-              arguments: ''
+              arguments: '-SkipDependencies'
           
           - task: 1ES.PublishPipelineArtifact@1
             displayName: Upload npm package
