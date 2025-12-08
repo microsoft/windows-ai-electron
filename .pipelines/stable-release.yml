@@ -116,15 +116,15 @@ extends:
               script: |
                 Write-Host "=== Configuring winappcli NuGet feed ==="
                 
-                # Get the winapp path
-                Write-Host "Getting winapp path..."
-                $winappOutput = npx winapp get-winapp-path
+                # Set winapp cache directory to local workspace
+                $workspaceDir = Get-Location
+                $winappPath = Join-Path $workspaceDir ".winapp"
+                $env:WINAPP_CLI_CACHE_DIRECTORY = $winappPath
                 
-                # Extract the path from the output (last line)
-                $winappPath = ($winappOutput -split "`n" | Select-Object -Last 1).Trim()
-                Write-Host "Winapp path: $winappPath"
+                Write-Host "Setting WINAPP_CLI_CACHE_DIRECTORY to: $winappPath"
+                Write-Host "##vso[task.setvariable variable=WINAPP_CLI_CACHE_DIRECTORY]$winappPath"
                 
-                # Create packages directory
+                # Create .winapp and packages directories
                 $packagesDir = Join-Path $winappPath "packages"
                 Write-Host "Creating packages directory: $packagesDir"
                 New-Item -ItemType Directory -Path $packagesDir -Force | Out-Null
