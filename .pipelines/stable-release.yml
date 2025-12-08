@@ -60,10 +60,20 @@ extends:
             inputs:
               version: '24.x'
           
+          - task: PowerShell@2
+            displayName: Create temporary .npmrc
+            inputs:
+              targetType: inline
+              script: |
+                # Create .npmrc pointing to Azure Artifacts feed
+                $npmrcContent = "registry=https://pkgs.dev.azure.com/microsoft/pde-oss/_packaging/winapp-windows-ai-npm-feed/npm/registry/`nalways-auth=true"
+                Set-Content -Path ".npmrc" -Value $npmrcContent
+                Write-Host "Created .npmrc for Azure Artifacts feed"
+          
           - task: npmAuthenticate@0
             displayName: Authenticate with Azure Artifacts feed
             inputs:
-              artifactFeed: 'pde-oss/winapp-windows-ai-npm-feed'
+              workingFile: '.npmrc'
           
           - task: PowerShell@2
             name: SetMeta
