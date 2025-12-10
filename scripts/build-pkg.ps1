@@ -13,15 +13,21 @@
     
 .PARAMETER SkipDependencies
     Skip dependency installation (useful for local development)
+.PARAMETER Stable
+    Build a stable release (uses stable version format without -prerelease suffix)
 .EXAMPLE
     .\scripts\build-pkg.ps1
 .EXAMPLE
     # For local development when dependencies are already installed
     .\scripts\build-pkg.ps1 -SkipDependencies
+.EXAMPLE
+    # For stable release
+    .\scripts\build-pkg.ps1 -Stable -SkipDependencies
 #>
 
 param(
-    [switch]$SkipDependencies
+    [switch]$SkipDependencies,
+    [switch]$Stable
 )
 
 
@@ -91,17 +97,28 @@ try
     $PackageJson = Get-Content $PackageJsonPath | ConvertFrom-Json
     $BaseVersion = $PackageJson.version
 
-    # Get build number
-    $BuildNumber = & "$PSScriptRoot\get-build-number.ps1"
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Failed to get build number"
-        exit 1
-    }
+    if ($Stable) {
+        # Stable build: use get-stable-version.ps1 to calculate next stable version
+        $FullVersion = & "$PSScriptRoot\get-stable-version.ps1"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to get stable version"
+            exit 1
+        }
+        Write-Host "[VERSION] Using stable version (no prerelease suffix)" -ForegroundColor Cyan
+        Write-Host "[VERSION] Package version: $FullVersion" -ForegroundColor Cyan
+    } else {
+        # Get build number
+        $BuildNumber = & "$PSScriptRoot\get-build-number.ps1"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to get build number"
+            exit 1
+        }
 
-    # Prerelease build: add prerelease number suffix (e.g., "0.1.0-prerelease.73")
-    $FullVersion = "$BaseVersion-prerelease.$BuildNumber"
-    Write-Host "[VERSION] Using prerelease version (with prerelease suffix)" -ForegroundColor Cyan
-    Write-Host "[VERSION] Package version: $FullVersion" -ForegroundColor Cyan
+        # Prerelease build: add prerelease number suffix (e.g., "0.1.0-prerelease.73")
+        $FullVersion = "$BaseVersion-prerelease.$BuildNumber"
+        Write-Host "[VERSION] Using prerelease version (with prerelease suffix)" -ForegroundColor Cyan
+        Write-Host "[VERSION] Package version: $FullVersion" -ForegroundColor Cyan
+    }
 
     # Prepare git tag (will be created at the end if build succeeds)
     $GitTag = "v$FullVersion"

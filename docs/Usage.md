@@ -227,7 +227,7 @@ async function checkConversationSize() {
 ### Text Generation
 
 > [!IMPORTANT]  
-> `GenerateResponseAsync` uses a Windows API which is a part of a [Limited Access Feature](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.limitedaccessfeatures?view=winrt-26100). To request an unlock token, please use the [LAF Access Token Request Form](https://go.microsoft.com/fwlink/?linkid=2271232&c1cid=04x409). To use this method, you must first call [LimitedAccessFeature.TryUnlockToken](#limitedaccessfeatures). See <TODO> for usage examples.
+> `GenerateResponseAsync` uses a Windows API which is a part of a [Limited Access Feature](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.limitedaccessfeatures?view=winrt-26100). To request an unlock token, please use the [LAF Access Token Request Form](https://go.microsoft.com/fwlink/?linkid=2271232&c1cid=04x409). To use this method, you must first call [LimitedAccessFeature.TryUnlockToken](#limitedaccessfeatures).
 
 ```javascript
 const {
@@ -270,7 +270,7 @@ async function generateTextWithProgress(progressCallback) {
 ### Text Generation with LanguageModelOptions
 
 > [!IMPORTANT]  
-> `GenerateResponseAsync` uses a Windows API which is a part of a [Limited Access Feature](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.limitedaccessfeatures?view=winrt-26100). To request an unlock token, please use the [LAF Access Token Request Form](https://go.microsoft.com/fwlink/?linkid=2271232&c1cid=04x409). To use this method, you must first call [LimitedAccessFeature.TryUnlockToken](#limitedaccessfeatures). See <TODO> for usage examples.
+> `GenerateResponseAsync` uses a Windows API which is a part of a [Limited Access Feature](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.limitedaccessfeatures?view=winrt-26100). To request an unlock token, please use the [LAF Access Token Request Form](https://go.microsoft.com/fwlink/?linkid=2271232&c1cid=04x409). To use this method, you must first call [LimitedAccessFeature.TryUnlockToken](#limitedaccessfeatures).
 
 ```javascript
 const {

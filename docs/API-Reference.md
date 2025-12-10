@@ -19,7 +19,7 @@ Main class for text generation and AI model interactions. Maps to WinAppSDK [Mic
 **Instance Methods:**
 
 > [!IMPORTANT]  
-> This method uses a Windows API which is a part of a [Limited Access Feature](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.limitedaccessfeatures?view=winrt-26100). To request an unlock token, please use the [LAF Access Token Request Form](https://go.microsoft.com/fwlink/?linkid=2271232&c1cid=04x409). To use this method, you must first call [LimitedAccessFeature.TryUnlockToken](#limitedaccessfeatures). See <TODO> for usage examples.
+> This method uses a Windows API which is a part of a [Limited Access Feature](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.limitedaccessfeatures?view=winrt-26100). To request an unlock token, please use the [LAF Access Token Request Form](https://go.microsoft.com/fwlink/?linkid=2271232&c1cid=04x409). To use this method, you must first call [LimitedAccessFeature.TryUnlockToken](#limitedaccessfeatures). See [Usage.md](Usage.md) for usage examples.
 
 - <code>GenerateResponseAsync(string, <a href="#languagemodeloptions">LanguageModelOptions</a>?)</code> - Generates text response from a prompt. Maps to [LanguageModel.GenerateResponseAsync()](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.text.languagemodel.generateresponseasync?view=windows-app-sdk-1.8)
 
