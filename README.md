@@ -45,29 +45,24 @@ cd <your-electron-app>
 npm i @microsoft/winapp-windows-ai
 ```
 
-### 3. Add @microsoft/winappcli as a Dependency
+### 3. Add @microsoft/winappcli as a dev Dependency
 
 ```bash
-npm i @microsoft/winappcli
+npm i @microsoft/winappcli -D
 ```
 
 ### 4. Install and Setup Dependencies
 
-Initialize project with Windows SDK and Windows App SDK:
+Initialize your project for calling Windows APIs. This will create an appxmanifest.xml, required assets, and make the Windows App SDK available for usage:
 
 ```bash
 npx winapp init
 ```
+
 > [!IMPORTANT]
-> Edit `winapp.yaml` to use Microsoft.WindowsAppSDK `1.8.251106002` (you can specify a different WinAppSDK version, provided it matches the same major and minor version e.g., v1.8.x).
+> When you run `npx winapp init`, it generates a `winapp.yaml` file for managing sdk versions. Make sure the version of the Microsoft.WindowsAppSDK package is `1.8.xxxxx`. If it's not, simly set the version to `1.8.251106002` and run `npx winapp restore` to ensure the proper dependencies are avialable for the project.
 
-Update Windows SDK and Windows App SDK dependencies:
-
-```bash
-npx winapp restore
-```
-
-### 5. Add Debug Identity + Capabilities to App
+### 5. Add `systemAIModels` Capability
 
 Add `systemAIModels` Capability in `appxmanifest.xml` for app to gain access to local models:
 
@@ -76,26 +71,18 @@ Add `systemAIModels` Capability in `appxmanifest.xml` for app to gain access to 
     <rescap:Capability Name="systemAIModels" />
 </Capabilities>
 ```
-
-Add identity to Electron process (required for Windows SDK and Windows App SDK API's):
+### 6. Add Debug Identity
+ 
+Before your app can call the AI APIs, we need to make sure the electron process has identity as defined in you appxmanifest.xml. Add app identity to the Electron process for debugging:
 
 ```bash
 npx winapp node add-electron-debug-identity
 ```
 
 > [!IMPORTANT]
-> There is a known issue with sparse packaging Electron applications which causes the app to crash on start or not render the web content. The issue has been fixed in Windows but it has not propagated to external Windows devices yet. If you are seeing this issue after calling `add-electron-debug-identity`, you can [disable sandboxing in your Electron app](https://www.electronjs.org/docs/latest/tutorial/sandbox#disabling-chromiums-sandbox-testing-only) for debug purposes with the `--no-sandbox` flag. This issue does not affect full MSIX packaging.
+> There is a known issue with sparse packaging Electron applications which causes the app to crash on start or not render the web content. The issue has been fixed in Windows but has not yet fully propagated to all Windows devices. If you are seeing this issue after calling `add-electron-debug-identity`, you can [disable sandboxing in your Electron app](https://www.electronjs.org/docs/latest/tutorial/sandbox#disabling-chromiums-sandbox-testing-only) for debug purposes with the `--no-sandbox` flag. This issue does not affect full MSIX packaging.
 
-`package.json`:
-```javacript
-...
-"scripts": {
-    "start": "electron --no-sandbox .",
-  }
-...
-```
-
-### 6. Use @microsoft/winapp-windows-ai
+### 7. Use @microsoft/winapp-windows-ai
 
 In `main.js` or `index.js`:
 
@@ -169,11 +156,13 @@ const createWindow = () => {
 }
 ```
 
-### 7. Run Your App
+### 8. Run Your App
 
 ```bash
 npm run start
 ```
+
+You should see the local model streaming the response to the console.
 
 ## Supported APIs
 
