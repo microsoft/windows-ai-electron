@@ -285,24 +285,23 @@ extends:
                 script: |
                   Write-Host "Service Name: ${{ parameters.signingIdentity.serviceName }}"
             
-            # TODO: Uncomment when ready to publish to NPM
-            # - task: EsrpRelease@10
-            #   condition: always()
-            #   displayName: Publish to NPM via ESRP
-            #   inputs:
-            #     ConnectedServiceName: ${{ parameters.signingIdentity.serviceName }}
-            #     usemanagedidentity: false
-            #     keyvaultname: ${{ parameters.signingIdentity.akvName }}
-            #     authcertname: ${{ parameters.signingIdentity.authCertName }}
-            #     signcertname: ${{ parameters.signingIdentity.signCertName }}
-            #     clientid: ${{ parameters.signingIdentity.appId }}
-            #     intent: 'PackageDistribution'
-            #     contenttype: 'npm'
-            #     contentsource: 'Folder'
-            #     folderlocation: $(Pipeline.Workspace)/npm-package/
-            #     waitforreleasecompletion: true
-            #     owners: '$(EsrpOwnersEmail)'
-            #     approvers: '$(EsrpApproversEmail)'
-            #     serviceendpointurl: 'https://api.esrp.microsoft.com'
-            #     mainpublisher: 'ESRPRELPACMAN'
-            #     domaintenantid: ${{ parameters.signingIdentity.tenantId }}
+            - task: EsrpRelease@10
+              condition: always()
+              displayName: Publish to NPM via ESRP
+              inputs:
+                ConnectedServiceName: ${{ parameters.signingIdentity.serviceName }}
+                usemanagedidentity: false
+                keyvaultname: ${{ parameters.signingIdentity.akvName }}
+                authcertname: ${{ parameters.signingIdentity.authCertName }}
+                signcertname: ${{ parameters.signingIdentity.signCertName }}
+                clientid: ${{ parameters.signingIdentity.appId }}
+                intent: 'PackageDistribution'
+                contenttype: 'npm'
+                contentsource: 'Folder'
+                folderlocation: $(Pipeline.Workspace)/npm-package/
+                waitforreleasecompletion: true
+                owners: '$(EsrpOwnersEmail)'
+                approvers: '$(EsrpApproversEmail)'
+                serviceendpointurl: 'https://api.esrp.microsoft.com'
+                mainpublisher: 'ESRPRELPACMAN'
+                domaintenantid: ${{ parameters.signingIdentity.tenantId }}
