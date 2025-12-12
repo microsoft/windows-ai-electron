@@ -1,10 +1,14 @@
 # Windows SDK packages and generated files
 .winapp/
 node_modules/
-winapp-windows-ai/build
-winapp-windows-ai/prebuilds
 artifacts/
 *.tgz
+
+# Builds
+winapp-windows-ai/build
+winapp-windows-ai/prebuilds
+/build
+
 
 # Development certificate
 devcert.pfx
