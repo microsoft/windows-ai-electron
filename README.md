@@ -60,7 +60,7 @@ npx winapp init
 ```
 
 > [!IMPORTANT]
-> When you run `npx winapp init`, it generates a `winapp.yaml` file for managing sdk versions. Make sure the version of the Microsoft.WindowsAppSDK package is `1.8.xxxxx`. If it's not, simly set the version to `1.8.251106002` and run `npx winapp restore` to ensure the proper dependencies are avialable for the project.
+> When you run `npx winapp init`, it generates a `winapp.yaml` file for managing SDK versions. Make sure the version of the Microsoft.WindowsAppSDK package is `1.8.xxxxx`. If it's not, simply set the version to `1.8.251106002` and run `npx winapp restore` to ensure the proper dependencies are available for the project.
 
 ### 5. Add `systemAIModels` Capability
 
