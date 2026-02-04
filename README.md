@@ -6,7 +6,7 @@
 </h3>
 
 > [!IMPORTANT]
-> :warning: **Status: Public Preview** - The Windows AI Addon is experimental and in active development. We'd love your feedback! Share your thoughts by creating an [issue](https://github.com/microsoft/winapp-windows-ai/issues).
+> :warning: **Status: Public Preview** - The Windows AI Addon is experimental and in active development. We'd love your feedback! Share your thoughts by creating an [issue](https://github.com/microsoft/windows-ai-electron/issues).
 
 The Windows AI Addon for Electron is a Node.js native addon that provides access to the [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/), enabling Electron applications to leverage Windows AI capabilities directly from JavaScript.
 
@@ -28,21 +28,21 @@ See [Windows AI API's Dependencies](https://learn.microsoft.com/windows/ai/apis/
 
 This package depends on the [@microsoft/winappcli](https://github.com/microsoft/WinAppCli) package. Any electron app which uses this package must also take a dependency on `@microsoft/winappcli` and follow its installation and setup steps.
 
-## Get Started Using @microsoft/winapp-windows-ai in an Electron App
+## Get Started Using @microsoft/windows-ai-electron in an Electron App
 
-Let's walk through a simple tutorial of how to get started using `@microsoft/winapp-windows-ai`. In this tutorial, we will create a simple Electron app that summarizes a block of text using Windows AI's Text Summarizer.
+Let's walk through a simple tutorial of how to get started using `@microsoft/windows-ai-electron`. In this tutorial, we will create a simple Electron app that summarizes a block of text using Windows AI's Text Summarizer.
 
 ### 1. Create an Electron App
 
 Create an electron app by following the getting started directions at [Electron: Building you First App](https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app).
 
-The instructions below follow the steps for adding `@microsoft/winapp-windows-ai` to a standard Electron app. This module can also be added to Electron apps built using [Electron Forge](https://www.electronforge.io/) and other templates.
+The instructions below follow the steps for adding `@microsoft/windows-ai-electron` to a standard Electron app. This module can also be added to Electron apps built using [Electron Forge](https://www.electronforge.io/) and other templates.
 
-### 2. Add @microsoft/winapp-windows-ai as a Dependency
+### 2. Add @microsoft/windows-ai-electron as a Dependency
 
 ```bash
 cd <your-electron-app>
-npm i @microsoft/winapp-windows-ai
+npm i @microsoft/windows-ai-electron
 ```
 
 ### 3. Add @microsoft/winappcli as a dev Dependency
@@ -82,7 +82,7 @@ npx winapp node add-electron-debug-identity
 > [!IMPORTANT]
 > There is a known issue with sparse packaging Electron applications which causes the app to crash on start or not render the web content. The issue has been fixed in Windows but has not yet fully propagated to all Windows devices. If you are seeing this issue after calling `add-electron-debug-identity`, you can [disable sandboxing in your Electron app](https://www.electronjs.org/docs/latest/tutorial/sandbox#disabling-chromiums-sandbox-testing-only) for debug purposes with the `--no-sandbox` flag. This issue does not affect full MSIX packaging.
 
-### 7. Use @microsoft/winapp-windows-ai
+### 7. Use @microsoft/windows-ai-electron
 
 In `main.js` or `index.js`:
 
@@ -92,7 +92,7 @@ const {
   AIFeatureReadyResultState,
   TextSummarizer,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 const summarizeText = async () => {
   try {
@@ -174,20 +174,20 @@ This package supports many of the API's within
 
 For the full list of supported API's, see [Supported API's](docs/API-Reference.md).
 
-If you have a request for additional API support, please file an [issue](https://github.com/microsoft/winapp-windows-ai/issues/new).
+If you have a request for additional API support, please file an [issue](https://github.com/microsoft/windows-ai-electron/issues/new).
 
 ## Usage Examples
 
-For more examples on how to use `@microsoft/winapp-windows-ai` within your Electron application, see the [Usage Guide](docs/Usage.md).
+For more examples on how to use `@microsoft/windows-ai-electron` within your Electron application, see the [Usage Guide](docs/Usage.md).
 
 ## Development
 
 ### Project Structure
 
 ```
-winapp-windows-ai/
-├── winapp-windows-ai/
-│   ├── winapp-windows-ai.cc         # Main addon entry point
+windows-ai-electron/
+├── windows-ai-electron/
+│   ├── windows-ai-electron.cc         # Main addon entry point
 │   ├── LanguageModelProjections.h   # Language model & text skills APIs
 │   ├── LanguageModelProjections.cpp
 │   ├── ImagingProjections.h         # Imaging APIs
@@ -201,7 +201,7 @@ winapp-windows-ai/
 │   └── binding.gyp                  # Build configuration
 ├── test-app/                        # Sample Electron application
 │   ├── main.js                      # Electron main process
-│   ├── preload.js                   # Preload script for @microsoft/winapp-windows-ai integration
+│   ├── preload.js                   # Preload script for @microsoft/windows-ai-electron integration
 │   ├── index.html                   # Sample UI for testing APIs
 │   └── package.json                 # Sample app package configuration and dependencies
 ├── docs/                            # Documentation files
@@ -218,13 +218,13 @@ winapp-windows-ai/
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/microsoft/winapp-windows-ai.git
+git clone https://github.com/microsoft/windows-ai-electron.git
 ```
 
 #### 2. Install Dependencies
 
 ```bash
-cd <path to @microsoft/winapp-windows-ai repo>
+cd <path to @microsoft/windows-ai-electron repo>
 npm install
 npx winapp restore
 ```
@@ -260,7 +260,7 @@ npm run setup-debug
 npm run start
 ```
 
-If you make changes to the `@microsoft/winapp-windows-ai` package and want to see your changes loaded into the sample app, make sure to re-build the addon before re-running `test-app`.
+If you make changes to the `@microsoft/windows-ai-electron` package and want to see your changes loaded into the sample app, make sure to re-build the addon before re-running `test-app`.
 
 ## License
 
@@ -281,7 +281,7 @@ This project is licensed under the MIT License - see the [LICENSE](/LICENSE) for
       5. Run `npx winapp node add-electron-debug-identity`
 
 4. **App renders blank**: You may need to disable sandboxing when running your Electron app on Windows. Then re-run `npx winapp node add-electron-debug-identity` (see [Add Debug Identity + Capabilities to App](#5-add-debug-identity--capabilities-to-app))
-5. **"Can't find module: @microsoft/winapp-windows-ai"**: Verify you have added the `@microsoft/winapp-windows-ai` package as a dependency to your application.
+5. **"Can't find module: @microsoft/windows-ai-electron"**: Verify you have added the `@microsoft/windows-ai-electron` package as a dependency to your application.
 7. **Image file not found**: You must use absolute file paths with proper Windows path separators.
 8. **Content moderation blocks**: Adjust `ContentFilterOptions` severity levels as appropriate.
 9. **Memory issues**: Always call `Close()` or `Dispose()` methods to clean up resources.

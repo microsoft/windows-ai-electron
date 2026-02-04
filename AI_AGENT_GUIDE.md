@@ -1,6 +1,6 @@
 # AI Agent Development Guide
 
-## @microsoft/winapp-windows-ai Repository
+## @microsoft/windows-ai-electron Repository
 
 > **Purpose**: This guide provides AI agents with comprehensive context about the repository structure, coding patterns, architectural decisions, and development practices to ensure consistent and high-quality contributions.
 
@@ -387,7 +387,7 @@ console.log("Complete:", finalResult.Text);
 
 ```javascript
 // Always test the happy path AND error conditions
-const windowsAI = require("./build/Release/winapp-windows-ai.node");
+const windowsAI = require("./build/Release/windows-ai-electron.node");
 
 async function testFeature() {
   try {

@@ -41,7 +41,7 @@ try
     # Define paths
     $ArtifactsPath = "artifacts"
 
-    Write-Host "[*] Starting @microsoft/winapp-windows-ai build process..." -ForegroundColor Green
+    Write-Host "[*] Starting @microsoft/windows-ai-electron build process..." -ForegroundColor Green
     Write-Host "Project root: $ProjectRoot" -ForegroundColor Gray
 
     # Step 0: Setup dependencies

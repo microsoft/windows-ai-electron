@@ -221,7 +221,7 @@ extends:
             displayName: Create GitHub Release
             inputs:
               gitHubConnection: 'github-service-connection'
-              repositoryName: 'microsoft/winapp-windows-ai'
+              repositoryName: 'microsoft/windows-ai-electron'
               action: 'create'
               target: '$(Build.SourceVersion)'
               tagSource: 'userSpecifiedTag'
@@ -241,7 +241,7 @@ extends:
                 
                 Download the npm package and install:
                 ```bash
-                npm install microsoft-winapp-windows-ai-$(version).tgz
+                npm install microsoft-windows-ai-electron-$(version).tgz
                 ```
                 
                 ## What's Included
@@ -250,7 +250,7 @@ extends:
                 - ✅ Prebuilt native addons (x64 and ARM64)
                 - ✅ TypeScript type definitions
                 
-                For usage instructions, see the [README](https://github.com/microsoft/winapp-windows-ai#readme).
+                For usage instructions, see the [README](https://github.com/microsoft/windows-ai-electron#readme).
               assets: '$(Pipeline.Workspace)/npm-package/*.tgz'
               isDraft: false
               isPreRelease: false

@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This form is for new feature or API proposals for @microsoft/winapp-windows-ai. Use this to submit new API requests or behavior updates.
+        This form is for new feature or API proposals for @microsoft/windows-ai-electron. Use this to submit new API requests or behavior updates.
   - type: textarea
     validations:
       required: true

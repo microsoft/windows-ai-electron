@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This form is for reporting bugs found in winapp-windows-ai.
+        This form is for reporting bugs found in windows-ai-electron.
   - type: textarea
     validations:
       required: true
@@ -37,7 +37,7 @@ body:
     attributes:
       label: Package Version
       description: |
-        Please list the version of the @microsoft/winapp-windows-ai package you are using.
+        Please list the version of the @microsoft/windows-ai-electron package you are using.
       placeholder: "0.1.1"
     id: package_version
   - type: dropdown

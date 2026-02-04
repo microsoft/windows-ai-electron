@@ -83,7 +83,7 @@ jobs:
 
             ## Installation
             ```bash
-            npm install microsoft-winapp-windows-ai-${{ steps.build.outputs.version }}.tgz
+            npm install microsoft-windows-ai-electron-${{ steps.build.outputs.version }}.tgz
             ```
           files: |
             artifacts/*.tgz

@@ -1,6 +1,6 @@
 ## Usage Examples
 
-Below are a few usage examples of the APIs in this module. For more samples on how to use the `@microsoft/winapp-windows-ai`, see [Electron Gallery](https://github.com/microsoft/electron-gallery). For more samples on how to use Windows AI Foundry, see [AI Dev Gallery](https://github.com/microsoft/ai-dev-Gallery).
+Below are a few usage examples of the APIs in this module. For more samples on how to use the `@microsoft/windows-ai-electron`, see [Electron Gallery](https://github.com/microsoft/electron-gallery). For more samples on how to use Windows AI Foundry, see [AI Dev Gallery](https://github.com/microsoft/ai-dev-Gallery).
 
 ### Text Summarization
 
@@ -10,7 +10,7 @@ const {
   AIFeatureReadyResultState,
   TextSummarizer,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function summarizeText() {
   try {
@@ -63,7 +63,7 @@ const {
   AIFeatureReadyResultState,
   TextSummarizer,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function summarizeParagraphWithProgress(callbackFunction) {
   try {
@@ -117,7 +117,7 @@ const {
   TextSummarizer,
   ConversationItem,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function summarizeConversation() {
   try {
@@ -188,7 +188,7 @@ async function summarizeConversation() {
 ### Checking Prompt Context Size
 
 ```javascript
-const { LanguageModel, TextSummarizer } = require("@microsoft/winapp-windows-ai");
+const { LanguageModel, TextSummarizer } = require("@microsoft/windows-ai-electron");
 
 async function checkConversationSize() {
   try {
@@ -234,7 +234,7 @@ const {
   LimitedAccessFeatures,
   LimitedAccessFeatureStatus,
   LanguageModel,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function generateTextWithProgress(progressCallback) {
   try {
@@ -280,7 +280,7 @@ const {
   AIFeatureReadyResultState,
   LanguageModelOptions,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function generateTextWithProgress(progressCallback) {
   try {
@@ -341,7 +341,7 @@ const {
   ImageContentFilterSeverity,
   ContentFilterOptions,
   LanguageModelOptions,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 function setupContentFiltering() {
   // Create text content severity settings
@@ -375,7 +375,7 @@ function setupContentFiltering() {
 ### Checking AI Feature Availability
 
 ```javascript
-const { LanguageModel, AIFeatureReadyState } = require("@microsoft/winapp-windows-ai");
+const { LanguageModel, AIFeatureReadyState } = require("@microsoft/windows-ai-electron");
 
 async function checkAIAvailability() {
   try {
@@ -410,7 +410,7 @@ const {
   TextRewriter,
   TextRewriteTone,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function rewriteText() {
   try {
@@ -452,7 +452,7 @@ const {
   TextRewriter,
   TextRewriteTone,
   LanguageModelResponseStatus,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function rewriteTextWithProgress(progressCallback) {
   try {
@@ -506,7 +506,7 @@ const {
   LanguageModel,
   AIFeatureReadyResultState,
   TextToTableConverter,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function convertTextToTable() {
   try {
@@ -556,7 +556,7 @@ const {
   AIFeatureReadyResultState,
   ContentFilterOptions,
   ImageDescriptionKind,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function generateImageDescription() {
   try {
@@ -595,7 +595,7 @@ async function generateImageDescription() {
 const {
   TextRecognizer,
   AIFeatureReadyResultState,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function recognizeTextFromImage() {
   try {
@@ -646,7 +646,7 @@ async function recognizeTextFromImage() {
 const {
   TextRecognizer,
   AIFeatureReadyResultState,
-} = require("@microsoft/winapp-windows-ai");
+} = require("@microsoft/windows-ai-electron");
 
 async function quickTextRecognition() {
   try {
