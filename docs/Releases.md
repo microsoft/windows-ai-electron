@@ -1,6 +1,6 @@
 # Release Process
 
-This document describes the release process for `@microsoft/winapp-windows-ai`, including both prerelease and stable releases.
+This document describes the release process for `@microsoft/windows-ai-electron`, including both prerelease and stable releases.
 
 ## Overview
 
@@ -32,7 +32,7 @@ The project uses two separate release pipelines:
 ### Installation
 Download the prerelease tarball from GitHub Releases:
 ```bash
-npm install microsoft-winapp-windows-ai-{version}-prerelease.{buildNumber}.tgz
+npm install microsoft-windows-ai-electron-{version}-prerelease.{buildNumber}.tgz
 ```
 
 ## Stable Releases
@@ -106,7 +106,7 @@ The pipeline automatically determines the next patch version:
 
 4. **Verify the release**:
    - Check GitHub releases for new `v0.1.0` release
-   - Verify npm package is published: `npm view @microsoft/winapp-windows-ai`
+   - Verify npm package is published: `npm view @microsoft/windows-ai-electron`
 
 ## Creating Patch Releases
 
@@ -251,7 +251,7 @@ For detailed setup instructions for the Azure DevOps stable release pipeline, se
 
 Quick checklist:
 - [ ] Access to `microsoft/pde-oss` project
-- [ ] GitHub service connection: `GitHub-winapp-windows-ai`
+- [ ] GitHub service connection: `GitHub-windows-ai-electron`
 - [ ] Signing variable group linked
 - [ ] Pipeline imported and configured
 

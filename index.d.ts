@@ -1,8 +1,8 @@
-// Type definitions for @microsoft/winapp-windows-ai
-// Project: https://github.com/microsoft/winapp-windows-ai
+// Type definitions for @microsoft/windows-ai-electron
+// Project: https://github.com/microsoft/windows-ai-electron
 // Definitions by: Microsoft Corporation
 
-declare module "@microsoft/winapp-windows-ai" {
+declare module "@microsoft/windows-ai-electron" {
 
   // =============================
   // Enums and Constants

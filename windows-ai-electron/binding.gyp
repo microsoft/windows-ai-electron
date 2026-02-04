@@ -1,8 +1,8 @@
 {
   "targets": [
     {
-      "target_name": "winapp-windows-ai",
-      "sources": ["winapp-windows-ai.cc", "LanguageModelProjections.cpp", "ImagingProjections.cpp", "ProjectionHelper.cpp", "ContentSeverity.cpp", "LimitedAccessFeature.cpp"],
+      "target_name": "windows-ai-electron",
+      "sources": ["windows-ai-electron.cc", "LanguageModelProjections.cpp", "ImagingProjections.cpp", "ProjectionHelper.cpp", "ContentSeverity.cpp", "LimitedAccessFeature.cpp"],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
         "<!(node -e \"require('nan')\")",

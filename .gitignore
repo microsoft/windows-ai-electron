@@ -5,8 +5,8 @@ artifacts/
 *.tgz
 
 # Builds
-winapp-windows-ai/build
-winapp-windows-ai/prebuilds
+windows-ai-electron/build
+windows-ai-electron/prebuilds
 /build
 
 
