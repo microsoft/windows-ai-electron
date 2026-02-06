@@ -13,7 +13,7 @@
     "build-all": "npm run build-windows-ai-electron-arm64 && npm run build-windows-ai-electron-x64",
     "clean": "node -e \"require('fs').rmSync('bin', {recursive: true, force: true})\""
   },
-  "keywords": [],
+  "keywords": ["windows", "ai", "electron", "native", "addon", "phi-silica", "windows-ai", "winappsdk", "typescript", "native-addon"],
   "license": "MIT",
   "description": "Electron addon which creates JavaScript projections for the native Windows AI APIs.",
   "repository": {
