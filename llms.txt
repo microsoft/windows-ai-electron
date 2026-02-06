@@ -1,0 +1,113 @@
+# Windows AI Addon for Electron
+
+> Leverage Windows AI capabilities directly from your app's JavaScript
+
+## Description
+
+The Windows AI Addon for Electron (`@microsoft/windows-ai-electron`) is a Node.js native addon that provides access to the Windows AI APIs, enabling Electron applications to leverage Windows AI capabilities directly from JavaScript.
+
+This package creates JavaScript projections for the native Windows AI APIs, allowing developers to use on-device AI features like text summarization, text rewriting, image super resolution, and more in their Electron applications.
+
+**Status:** Public Preview - experimental and in active development.
+
+## Key Features
+
+- **Text Summarization** - Summarize long text or conversations using on-device AI
+- **Text Rewriting** - Rewrite text with different tones (professional, casual, friendly, etc.)
+- **Text Generation** - Generate AI responses using the local Phi Silica model (requires Limited Access Feature token)
+- **Image Processing** - Super resolution, object erase, and background blur for images
+- **Content Safety** - Content moderation and severity filtering
+
+## Prerequisites
+
+- Copilot+ PC
+- Windows 11 (Windows Insider Preview build 26120.3073 or later)
+- Node.js 18.x or later
+- Visual Studio 2022 with C++ build tools
+- Python 3.x
+
+## Getting Started
+
+### Quick Start
+
+1. Create an Electron app or use an existing one
+2. Install the package:
+   ```bash
+   npm i @microsoft/windows-ai-electron
+   ```
+3. Install the CLI tool as a dev dependency:
+   ```bash
+   npm i @microsoft/winappcli -D
+   ```
+4. Initialize Windows API support:
+   ```bash
+   npx winapp init
+   ```
+5. Add `systemAIModels` capability to `appxmanifest.xml`:
+   ```xml
+   <Capabilities>
+       <rescap:Capability Name="systemAIModels" />
+   </Capabilities>
+   ```
+6. Add debug identity:
+   ```bash
+   npx winapp node add-electron-debug-identity
+   ```
+7. Use the APIs in your main process JavaScript
+
+### Basic Example
+
+```javascript
+const {
+  LanguageModel,
+  AIFeatureReadyResultState,
+  TextSummarizer,
+  LanguageModelResponseStatus,
+} = require("@microsoft/windows-ai-electron");
+
+async function summarizeText() {
+  const readyResult = await LanguageModel.EnsureReadyAsync();
+  if (readyResult.Status !== AIFeatureReadyResultState.Success) {
+    console.log("AI not ready:", readyResult.ErrorDisplayText);
+    return;
+  }
+
+  const model = await LanguageModel.CreateAsync();
+  const textSummarizer = new TextSummarizer(model);
+  const result = await textSummarizer.SummarizeAsync("Your long text here...");
+  
+  if (result.Status === LanguageModelResponseStatus.Complete) {
+    console.log("Summary:", result.Text);
+  }
+}
+```
+
+## Documentation
+
+- [README](README.md) - Full getting started guide and project overview
+- [API Reference](docs/API-Reference.md) - Complete list of supported APIs with method signatures
+- [Usage Guide](docs/Usage.md) - Detailed usage examples for all features
+- [Release Process](docs/Releases.md) - Information about prerelease and stable releases
+
+## External Resources
+
+- [Windows AI APIs Documentation](https://learn.microsoft.com/en-us/windows/ai/apis/)
+- [Electron Gallery](https://github.com/microsoft/electron-gallery) - Sample Electron apps using this package
+- [AI Dev Gallery](https://github.com/microsoft/ai-dev-Gallery) - Windows AI samples
+- [WinAppCli](https://github.com/microsoft/WinAppCli) - Required dependency for Windows API access
+
+## Supported API Namespaces
+
+- [Microsoft.Windows.AI.Text](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.text?view=windows-app-sdk-1.8)
+- [Microsoft.Windows.AI.Imaging](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai.imaging?view=windows-app-sdk-1.8)
+- [Microsoft.Windows.AI](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.windows.ai?view=windows-app-sdk-1.8)
+
+## Repository
+
+- GitHub: https://github.com/microsoft/windows-ai-electron
+- Issues: https://github.com/microsoft/windows-ai-electron/issues
+- npm: @microsoft/windows-ai-electron
+
+## License
+
+MIT
