@@ -7,6 +7,7 @@ using namespace Windows::ApplicationModel;
 // Static member definitions
 Napi::FunctionReference MyLimitedAccessFeatures::constructor;
 Napi::FunctionReference MyLimitedAccessFeatureRequestResult::constructor;
+bool MyLimitedAccessFeatures::s_featureUnlocked = false;
 
 // MyLimitedAccessFeatures Implementation
 Napi::Object MyLimitedAccessFeatures::Init(Napi::Env env, Napi::Object exports) {
@@ -43,6 +44,12 @@ Napi::Value MyLimitedAccessFeatures::TryUnlockFeature(const Napi::CallbackInfo& 
         // Call the TryUnlockFeature(String, String, String) overload
         LimitedAccessFeatureRequestResult result = LimitedAccessFeatures::TryUnlockFeature(featureId, token, developerSignature);
         
+        // Mark feature as unlocked if successful
+        if (result.Status() == LimitedAccessFeatureStatus::Available || 
+            result.Status() == LimitedAccessFeatureStatus::AvailableWithoutToken) {
+            s_featureUnlocked = true;
+        }
+        
         // Create wrapper for the result
         auto external = Napi::External<LimitedAccessFeatureRequestResult>::New(env, &result);
         auto resultWrapper = MyLimitedAccessFeatureRequestResult::constructor.New({ external });
@@ -60,6 +67,10 @@ Napi::Value MyLimitedAccessFeatures::TryUnlockFeature(const Napi::CallbackInfo& 
         Napi::Error::New(env, "Unknown error occurred in TryUnlockFeature").ThrowAsJavaScriptException();
         return env.Null();
     }
+}
+
+bool MyLimitedAccessFeatures::IsFeatureUnlocked() {
+    return s_featureUnlocked;
 }
 
 // MyLimitedAccessFeatureRequestResult Implementation
