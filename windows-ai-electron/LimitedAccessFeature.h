@@ -19,11 +19,13 @@ class MyLimitedAccessFeatures : public Napi::ObjectWrap<MyLimitedAccessFeatures>
 public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     static Napi::FunctionReference constructor;
+    static bool s_featureUnlocked;
 
     MyLimitedAccessFeatures(const Napi::CallbackInfo& info);
 
     // Static methods
     static Napi::Value TryUnlockFeature(const Napi::CallbackInfo& info);
+    static bool IsFeatureUnlocked();
 
 private:
     // No instance members needed for static-only class

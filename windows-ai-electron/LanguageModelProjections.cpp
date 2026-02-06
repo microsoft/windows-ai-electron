@@ -6,6 +6,7 @@
 #include <winrt/Windows.Data.Xml.Dom.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <cstdlib>
+#include "LimitedAccessFeature.h"
 
 using namespace Windows::Data::Xml::Dom;
 
@@ -539,6 +540,12 @@ MyLanguageModel::MyLanguageModel(const Napi::CallbackInfo& info) : Napi::ObjectW
 
 Napi::Value MyLanguageModel::MyGenerateResponseAsync(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
+    
+    // Check if Limited Access Feature has been unlocked
+    if (!MyLimitedAccessFeatures::IsFeatureUnlocked()) {
+        Napi::Error::New(env, "GenerateResponseAsync requires the Limited Access Feature to be unlocked. Call LimitedAccessFeatures.TryUnlockFeature() with a valid token before using this API. Request a token at: https://go.microsoft.com/fwlink/?linkid=2271232").ThrowAsJavaScriptException();
+        return env.Null();
+    }
     
     if (info.Length() < 1 || !info[0].IsString()) {
         Napi::TypeError::New(env, "First parameter must be a string").ThrowAsJavaScriptException();
