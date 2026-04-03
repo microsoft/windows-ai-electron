@@ -161,10 +161,10 @@ detect-node@^2.0.4:
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.1.0.tgz#c9c70775a49c3d03bc2c06d9a73be550f978f8b1"
   integrity sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==
 
-electron@^39.0.0:
-  version "39.0.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-39.0.0.tgz#6906720c5bd3c40f98f6e01802fdc301654c4550"
-  integrity sha512-UejnuOK4jpRZUq7MkEAnR/szsRWLKBJAdvn6j3xdQLT57fVv13VSNdaUHHjSheaqGzNhCGIdkPsPJnGJVh5kiA==
+electron@^39.8.0:
+  version "39.8.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-39.8.0.tgz#e4e6f3d7508d2b5e6edde3e4bf97a389f798e03e"
+  integrity sha512-K+f3YelSyh9Q4LgUXuIhLB4kq73LJrqnIbe8ih9vpWi+iSdPebj0w7FRYwILCMDoyBQMFC9LicYHuIPmZzdKlg==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"
