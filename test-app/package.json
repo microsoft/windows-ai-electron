@@ -9,7 +9,7 @@
     "postinstall": "npx winapp init && npm run setup-debug"
   },
   "devDependencies": {
-    "electron": "^39.0.0"
+    "electron": "^39.8.4"
   },
   "dependencies": {
     "@microsoft/winappcli": "^0.1.7"
