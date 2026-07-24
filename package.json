@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "main": "index.js",
   "types": "index.d.ts",
-  "deprecated": "This package is deprecated. WinRT projections for Electron are now fully supported in @microsoft/winappcli. Migrate to @microsoft/winappcli: https://github.com/microsoft/winappCli/blob/0a215f19619ef1bb036e7633d306c9175c5ad61c/docs/usage.md?plain=1#L876",
+  "deprecated": "This package is deprecated. WinRT projections for Electron are now fully supported in @microsoft/winappcli. Migrate to @microsoft/winappcli: https://github.com/microsoft/winappCli/blob/main/docs/guides/electron/js-file-picker.md",
   "os": [
     "win32"
   ],
