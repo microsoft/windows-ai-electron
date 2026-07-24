@@ -1,13 +1,15 @@
 {
   "name": "@microsoft/windows-ai-electron",
-  "version": "0.2",
+  "version": "0.3.0",
   "main": "index.js",
   "types": "index.d.ts",
+  "deprecated": "This package is deprecated. WinRT projections for Electron are now fully supported in @microsoft/winappcli. Please migrate to @microsoft/winappcli.",
   "os": [
     "win32"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "echo \"\\n⚠️  DEPRECATED: @microsoft/windows-ai-electron is deprecated. WinRT projections for Electron are now fully supported in @microsoft/winappcli. Please migrate to @microsoft/winappcli.\\n\"",
     "build-windows-ai-electron-arm64": "cd windows-ai-electron && prebuildify --arch arm64 --strip && cd ..",
     "build-windows-ai-electron-x64": "cd windows-ai-electron && prebuildify --arch x64 --strip && cd ..",
     "build-all": "npm run build-windows-ai-electron-arm64 && npm run build-windows-ai-electron-x64",

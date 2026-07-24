@@ -2,13 +2,20 @@
   <span>Windows AI Addon for Electron</span>
 </h1>
 <h3 align="center">
-  <span>Leverage Windows AI capabilities directly from your app's JavaScript</span>
+  <span>⚠️ DEPRECATED ⚠️</span>
 </h3>
 
-> [!IMPORTANT]
-> :warning: **Status: Public Preview** - The Windows AI Addon is experimental and in active development. We'd love your feedback! Share your thoughts by creating an [issue](https://github.com/microsoft/windows-ai-electron/issues).
+> [!CAUTION]
+> **This package is deprecated and no longer maintained.** WinRT projections for Electron are now fully supported in [`@microsoft/winappcli`](https://www.npmjs.com/package/@microsoft/winappcli). Please migrate to `@microsoft/winappcli` for continued support and updates.
+>
+> ```bash
+> npm uninstall @microsoft/windows-ai-electron
+> npm install @microsoft/winappcli
+> ```
 
-The Windows AI Addon for Electron is a Node.js native addon that provides access to the [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/), enabling Electron applications to leverage Windows AI capabilities directly from JavaScript.
+---
+
+The Windows AI Addon for Electron was a Node.js native addon that provided access to the [Windows AI APIs](https://learn.microsoft.com/en-us/windows/ai/apis/), enabling Electron applications to leverage Windows AI capabilities directly from JavaScript. This functionality is now available through [`@microsoft/winappcli`](https://github.com/microsoft/WinAppCli).
 
 ## Prerequisites
 
