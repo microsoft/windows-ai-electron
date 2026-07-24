@@ -6,7 +6,7 @@
 </h3>
 
 > [!CAUTION]
-> **This package is deprecated and no longer maintained.** WinRT projections for Electron are now fully supported in [`@microsoft/winappcli`](https://github.com/microsoft/winappCli/blob/0a215f19619ef1bb036e7633d306c9175c5ad61c/docs/usage.md?plain=1#L876). Please migrate to `@microsoft/winappcli` for continued support and updates.
+> **This package is deprecated and no longer maintained.** WinRT projections for Electron are now fully supported in [`@microsoft/winappcli`](https://github.com/microsoft/winappCli/blob/main/docs/guides/electron/js-file-picker.md). Please migrate to `@microsoft/winappcli` for continued support and updates.
 >
 > ```bash
 > npm uninstall @microsoft/windows-ai-electron
