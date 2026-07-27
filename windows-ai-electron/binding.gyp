@@ -6,7 +6,7 @@
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
         "<!(node -e \"require('nan')\")",
-        "<!@(node -p \"JSON.stringify(require('@microsoft/winappcli').getLocalWinappPath().replace(/\\r?\\n/g, '').replace(/\\\\/g, '/') + '/include')\")"
+        "<!@(node -p \"JSON.stringify((process.env.WINAPP_CLI_CACHE_DIRECTORY || require('@microsoft/winappcli').getLocalWinappPath()).replace(/\\r?\\n/g, '').replace(/\\\\/g, '/') + '/include')\")"
       ],
       "msvs_settings": {
         "VCCLCompilerTool": {
@@ -32,7 +32,7 @@
         }
       },
       "library_dirs": [
-        "<!@(node -p \"JSON.stringify(require('@microsoft/winappcli').getLocalWinappPath().replace(/\\r?\\n/g, '').replace(/\\\\/g, '/') + '/lib/<(target_arch)')\")",
+        "<!@(node -p \"JSON.stringify((process.env.WINAPP_CLI_CACHE_DIRECTORY || require('@microsoft/winappcli').getLocalWinappPath()).replace(/\\r?\\n/g, '').replace(/\\\\/g, '/') + '/lib/<(target_arch)')\")",
         "../build/<(target_arch)/Release"
       ],
       "libraries": [
