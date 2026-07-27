@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/windows-ai-electron",
-  "version": "0.3.0",
+  "version": "0.3",
   "main": "index.js",
   "types": "index.d.ts",
   "deprecated": "This package is deprecated. WinRT projections for Electron are now fully supported in @microsoft/winappcli. Migrate to @microsoft/winappcli: https://github.com/microsoft/winappCli/blob/main/docs/guides/electron/js-file-picker.md",
@@ -15,7 +15,18 @@
     "build-all": "npm run build-windows-ai-electron-arm64 && npm run build-windows-ai-electron-x64",
     "clean": "node -e \"require('fs').rmSync('bin', {recursive: true, force: true})\""
   },
-  "keywords": ["windows", "ai", "electron", "native", "addon", "phi-silica", "windows-ai", "winappsdk", "typescript", "native-addon"],
+  "keywords": [
+    "windows",
+    "ai",
+    "electron",
+    "native",
+    "addon",
+    "phi-silica",
+    "windows-ai",
+    "winappsdk",
+    "typescript",
+    "native-addon"
+  ],
   "license": "MIT",
   "description": "Electron addon which creates JavaScript projections for the native Windows AI APIs.",
   "repository": {
